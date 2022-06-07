@@ -2,15 +2,342 @@ syntax = "proto3";
 package gopher.market.v1;
 option go_package = "github.com/gopherlearning/gophermart/proto/v1";
 
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "1.0";
+  };
+  external_docs: {
+    url: "https://github.com/gopherlearning/gophermart";
+    description: "gophermart магазинчик";
+  }
+  schemes: HTTPS;
+};
+
 message AuthRequest {
-  string Login = 1;
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema: {
+      title: "AuthRequest"
+      description: "Запрос на регистрацию или аутентификацию"
+      required: [
+        "login",
+        "password"
+      ]
+    }
+    example: "{\"login\":\"<login>\",\"password\":\"<password>\"}"
+  };
+  string Login    = 1;
   string Password = 2;
 }
+message OrderRequest {
+  string Order = 1;
+}
+
+message OrdersRequest {
+  repeated Order Orders = 1;
+}
+
+message Order {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"number\": \"9278923470\",\"status\": \"PROCESSED\",\"accrual\": 500,\"uploaded_at\": \"2020-12-10T15:15:45+03:00\"}"
+  };
+  string Number     = 1;
+  string Status     = 2;
+  double Accrual    = 3;
+  string UploadedAt = 4;
+}
+
+
+
 
 message Empty {}
 
 service GopherMarket {
-  rpc Register(AuthRequest) returns (Empty) {}
+  rpc UsersRegister(AuthRequest) returns (Empty) {
+    option (google.api.http) = {
+      post: "/api/user/register"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Регистрация пользователя";
+      description: "Регистрация производится по паре логин/пароль. Каждый логин должен быть уникальным. После успешной регистрации должна происходить автоматическая аутентификация пользователя.";
+      responses: {
+        key: "200"
+        value: {
+          description: "пользователь успешно зарегистрирован и аутентифицирован";
+        }
+      }
+      responses: {
+        key: "400"
+        value: {
+          description: "неверный формат запроса";
+        }
+      }
+      responses: {
+        key: "409"
+        value: {
+          description: "логин уже занят";
+        }
+      }
+      responses: {
+        key: "500"
+        value: {
+          description: "внутренняя ошибка сервера";
+        }
+      }
+    };
+  }
+  rpc UsersLogin(AuthRequest) returns (Empty) {
+    option (google.api.http) = {
+      post: "/api/user/login"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Аутентификация пользователя"
+      description: "Аутентификация производится по паре логин/пароль."
+      responses: {
+        key: "200"
+        value: {
+          description: "пользователь успешно аутентифицирован";
+        }
+      }
+      responses: {
+        key: "400"
+        value: {
+          description: "неверный формат запроса";
+        }
+      }
+      responses: {
+        key: "401"
+        value: {
+          description: "неверная пара логин/пароль";
+        }
+      }
+      responses: {
+        key: "500"
+        value: {
+          description: "внутренняя ошибка сервера";
+        }
+      }
+    };
+  }
+  rpc OrdersAdd(OrderRequest) returns (Empty) {
+    option (google.api.http) = {
+      post: "/api/user/orders"
+      body: "Order"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Загрузка номера заказа"
+      description: "Хендлер доступен только аутентифицированным пользователям. Номером заказа является последовательность цифр произвольной длины.Номер заказа может быть проверен на корректность ввода с помощью алгоритма Луна."
+      responses: {
+        key: "200"
+        value: {
+          description: "номер заказа уже был загружен этим пользователем";
+        }
+      }
+      responses: {
+        key: "202"
+        value: {
+          description: "новый номер заказа принят в обработку";
+        }
+      }
+      responses: {
+        key: "400"
+        value: {
+          description: "неверный формат запроса";
+        }
+      }
+      responses: {
+        key: "401"
+        value: {
+          description: "пользователь не аутентифицирован";
+        }
+      }
+      responses: {
+        key: "409"
+        value: {
+          description: "номер заказа уже был загружен другим пользователем";
+        }
+      }
+    };
+  }
+  rpc OrdersGet(OrdersRequest) returns (Empty) {
+    option (google.api.http) = {
+      get: "/api/user/orders"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получение списка загруженных номеров заказов"
+      description: "Хендлер доступен только авторизованному пользователю. Номера заказа в выдаче должны быть отсортированы по времени загрузки от самых старых к самым новым. Формат даты — RFC3339."
+      responses: {
+        key: "200"
+        value: {
+          description: "успешная обработка запроса";
+        }
+      }
+      responses: {
+        key: "204"
+        value: {
+          description: "нет данных для ответа";
+        }
+      }
+      responses: {
+        key: "401"
+        value: {
+          description: "пользователь не авторизован";
+        }
+      }
+      responses: {
+        key: "500"
+        value: {
+          description: "внутренняя ошибка сервера";
+        }
+      }
+    };
+  }
+  // rpc E(A) returns (Empty) {
+  //   option (google.api.http) = {
+  //     post: "/api/user/login"
+  //     body: "*"
+  //   };
+  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+  //     summary: ""
+  //     description: ""
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //   };
+  // }
+  // rpc E(A) returns (Empty) {
+  //   option (google.api.http) = {
+  //     post: "/api/user/login"
+  //     body: "*"
+  //   };
+  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+  //     summary: ""
+  //     description: ""
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //   };
+  // }
+  // rpc E(A) returns (Empty) {
+  //   option (google.api.http) = {
+  //     post: "/api/user/login"
+  //     body: "*"
+  //   };
+  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+  //     summary: ""
+  //     description: ""
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //   };
+  // }
+  // rpc E(A) returns (Empty) {
+  //   option (google.api.http) = {
+  //     post: "/api/user/login"
+  //     body: "*"
+  //   };
+  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+  //     summary: ""
+  //     description: ""
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //   };
+  // }
+  // rpc E(A) returns (Empty) {
+  //   option (google.api.http) = {
+  //     post: "/api/user/login"
+  //     body: "*"
+  //   };
+  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+  //     summary: ""
+  //     description: ""
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //     responses: {
+  //       key: ""
+  //       value: {
+  //         description: "";
+  //       }
+  //     }
+  //   };
+  // }
+  
 }
 
 

@@ -1,0 +1,280 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "v1/market.proto",
+    "version": "1.0"
+  },
+  "tags": [
+    {
+      "name": "GopherMarket"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/user/login": {
+      "post": {
+        "summary": "Аутентификация пользователя",
+        "description": "Аутентификация производится по паре логин/пароль.",
+        "operationId": "GopherMarket_UsersLogin",
+        "responses": {
+          "200": {
+            "description": "пользователь успешно аутентифицирован",
+            "schema": {
+              "$ref": "#/definitions/v1Empty"
+            }
+          },
+          "400": {
+            "description": "неверный формат запроса",
+            "schema": {}
+          },
+          "401": {
+            "description": "неверная пара логин/пароль",
+            "schema": {}
+          },
+          "500": {
+            "description": "внутренняя ошибка сервера",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AuthRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GopherMarket"
+        ]
+      }
+    },
+    "/api/user/orders": {
+      "get": {
+        "summary": "Получение списка загруженных номеров заказов",
+        "description": "Хендлер доступен только авторизованному пользователю. Номера заказа в выдаче должны быть отсортированы по времени загрузки от самых старых к самым новым. Формат даты — RFC3339.",
+        "operationId": "GopherMarket_OrdersGet",
+        "responses": {
+          "200": {
+            "description": "успешная обработка запроса",
+            "schema": {
+              "$ref": "#/definitions/v1Empty"
+            }
+          },
+          "204": {
+            "description": "нет данных для ответа",
+            "schema": {}
+          },
+          "401": {
+            "description": "пользователь не авторизован",
+            "schema": {}
+          },
+          "500": {
+            "description": "внутренняя ошибка сервера",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "GopherMarket"
+        ]
+      },
+      "post": {
+        "summary": "Загрузка номера заказа",
+        "description": "Хендлер доступен только аутентифицированным пользователям. Номером заказа является последовательность цифр произвольной длины.Номер заказа может быть проверен на корректность ввода с помощью алгоритма Луна.",
+        "operationId": "GopherMarket_OrdersAdd",
+        "responses": {
+          "200": {
+            "description": "номер заказа уже был загружен этим пользователем",
+            "schema": {
+              "$ref": "#/definitions/v1Empty"
+            }
+          },
+          "202": {
+            "description": "новый номер заказа принят в обработку",
+            "schema": {}
+          },
+          "400": {
+            "description": "неверный формат запроса",
+            "schema": {}
+          },
+          "401": {
+            "description": "пользователь не аутентифицирован",
+            "schema": {}
+          },
+          "409": {
+            "description": "номер заказа уже был загружен другим пользователем",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Order",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "GopherMarket"
+        ]
+      }
+    },
+    "/api/user/register": {
+      "post": {
+        "summary": "Регистрация пользователя",
+        "description": "Регистрация производится по паре логин/пароль. Каждый логин должен быть уникальным. После успешной регистрации должна происходить автоматическая аутентификация пользователя.",
+        "operationId": "GopherMarket_UsersRegister",
+        "responses": {
+          "200": {
+            "description": "пользователь успешно зарегистрирован и аутентифицирован",
+            "schema": {
+              "$ref": "#/definitions/v1Empty"
+            }
+          },
+          "400": {
+            "description": "неверный формат запроса",
+            "schema": {}
+          },
+          "409": {
+            "description": "логин уже занят",
+            "schema": {}
+          },
+          "500": {
+            "description": "внутренняя ошибка сервера",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AuthRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GopherMarket"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1AuthRequest": {
+      "type": "object",
+      "example": {
+        "login": "\u003clogin\u003e",
+        "password": "\u003cpassword\u003e"
+      },
+      "properties": {
+        "Login": {
+          "type": "string"
+        },
+        "Password": {
+          "type": "string"
+        }
+      },
+      "description": "Запрос на регистрацию или аутентификацию",
+      "title": "AuthRequest",
+      "required": [
+        "login",
+        "password"
+      ]
+    },
+    "v1Empty": {
+      "type": "object"
+    },
+    "v1Order": {
+      "type": "object",
+      "example": {
+        "number": "9278923470",
+        "status": "PROCESSED",
+        "accrual": 500,
+        "uploaded_at": "2020-12-10T15:15:45+03:00"
+      },
+      "properties": {
+        "Number": {
+          "type": "string"
+        },
+        "Status": {
+          "type": "string"
+        },
+        "Accrual": {
+          "type": "number",
+          "format": "double"
+        },
+        "UploadedAt": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "gophermart магазинчик",
+    "url": "https://github.com/gopherlearning/gophermart"
+  }
+}
