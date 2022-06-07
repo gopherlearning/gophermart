@@ -26,6 +26,9 @@ type GopherMarketClient interface {
 	UsersLogin(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*Empty, error)
 	OrdersAdd(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*Empty, error)
 	OrdersGet(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*Empty, error)
+	GetBalance(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Balance, error)
+	BalanceWithdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*Empty, error)
+	GetWithdrawals(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*WithdrawsResponse, error)
 }
 
 type gopherMarketClient struct {
@@ -72,6 +75,33 @@ func (c *gopherMarketClient) OrdersGet(ctx context.Context, in *OrdersRequest, o
 	return out, nil
 }
 
+func (c *gopherMarketClient) GetBalance(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Balance, error) {
+	out := new(Balance)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/GetBalance", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gopherMarketClient) BalanceWithdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/BalanceWithdraw", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gopherMarketClient) GetWithdrawals(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*WithdrawsResponse, error) {
+	out := new(WithdrawsResponse)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/GetWithdrawals", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GopherMarketServer is the server API for GopherMarket service.
 // All implementations must embed UnimplementedGopherMarketServer
 // for forward compatibility
@@ -80,6 +110,9 @@ type GopherMarketServer interface {
 	UsersLogin(context.Context, *AuthRequest) (*Empty, error)
 	OrdersAdd(context.Context, *OrderRequest) (*Empty, error)
 	OrdersGet(context.Context, *OrdersRequest) (*Empty, error)
+	GetBalance(context.Context, *Empty) (*Balance, error)
+	BalanceWithdraw(context.Context, *WithdrawRequest) (*Empty, error)
+	GetWithdrawals(context.Context, *Empty) (*WithdrawsResponse, error)
 	mustEmbedUnimplementedGopherMarketServer()
 }
 
@@ -98,6 +131,15 @@ func (UnimplementedGopherMarketServer) OrdersAdd(context.Context, *OrderRequest)
 }
 func (UnimplementedGopherMarketServer) OrdersGet(context.Context, *OrdersRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrdersGet not implemented")
+}
+func (UnimplementedGopherMarketServer) GetBalance(context.Context, *Empty) (*Balance, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBalance not implemented")
+}
+func (UnimplementedGopherMarketServer) BalanceWithdraw(context.Context, *WithdrawRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BalanceWithdraw not implemented")
+}
+func (UnimplementedGopherMarketServer) GetWithdrawals(context.Context, *Empty) (*WithdrawsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWithdrawals not implemented")
 }
 func (UnimplementedGopherMarketServer) mustEmbedUnimplementedGopherMarketServer() {}
 
@@ -184,6 +226,60 @@ func _GopherMarket_OrdersGet_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GopherMarket_GetBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GopherMarketServer).GetBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gopher.market.v1.GopherMarket/GetBalance",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GopherMarketServer).GetBalance(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GopherMarket_BalanceWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WithdrawRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GopherMarketServer).BalanceWithdraw(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gopher.market.v1.GopherMarket/BalanceWithdraw",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GopherMarketServer).BalanceWithdraw(ctx, req.(*WithdrawRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GopherMarket_GetWithdrawals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GopherMarketServer).GetWithdrawals(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gopher.market.v1.GopherMarket/GetWithdrawals",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GopherMarketServer).GetWithdrawals(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GopherMarket_ServiceDesc is the grpc.ServiceDesc for GopherMarket service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +302,18 @@ var GopherMarket_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OrdersGet",
 			Handler:    _GopherMarket_OrdersGet_Handler,
+		},
+		{
+			MethodName: "GetBalance",
+			Handler:    _GopherMarket_GetBalance_Handler,
+		},
+		{
+			MethodName: "BalanceWithdraw",
+			Handler:    _GopherMarket_BalanceWithdraw_Handler,
+		},
+		{
+			MethodName: "GetWithdrawals",
+			Handler:    _GopherMarket_GetWithdrawals_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

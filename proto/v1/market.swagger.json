@@ -19,6 +19,154 @@
     "application/json"
   ],
   "paths": {
+    "/api/user/balance": {
+      "get": {
+        "summary": "Получение текущего баланса пользователя",
+        "description": "Хендлер доступен только авторизованному пользователю. В ответе должны содержаться данные о текущей сумме баллов лояльности, а также сумме использованных за весь период регистрации баллов.",
+        "operationId": "GopherMarket_GetBalance",
+        "responses": {
+          "200": {
+            "description": "успешная обработка запроса.",
+            "schema": {
+              "$ref": "#/definitions/v1Balance"
+            },
+            "examples": {
+              "application/json": {
+                "current": 500.5,
+                "withdrawn": 42
+              }
+            }
+          },
+          "401": {
+            "description": "пользователь не авторизован.",
+            "schema": {}
+          },
+          "500": {
+            "description": "внутренняя ошибка сервера.",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "GopherMarket"
+        ],
+        "security": [
+          {
+            "authorization": []
+          }
+        ]
+      }
+    },
+    "/api/user/balance/withdraw": {
+      "post": {
+        "summary": "Запрос на списание средств",
+        "description": "Хендлер доступен только авторизованному пользователю. Номер заказа представляет собой гипотетический номер нового заказа пользователя, в счёт оплаты которого списываются баллы.",
+        "operationId": "GopherMarket_BalanceWithdraw",
+        "responses": {
+          "200": {
+            "description": "успешная обработка запроса",
+            "schema": {
+              "$ref": "#/definitions/v1Empty"
+            }
+          },
+          "401": {
+            "description": "пользователь не авторизован",
+            "schema": {}
+          },
+          "402": {
+            "description": "на счету недостаточно средств",
+            "schema": {}
+          },
+          "422": {
+            "description": "неверный номер заказа",
+            "schema": {}
+          },
+          "500": {
+            "description": "внутренняя ошибка сервера",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1WithdrawRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GopherMarket"
+        ],
+        "security": [
+          {
+            "authorization": []
+          }
+        ]
+      }
+    },
+    "/api/user/balance/withdrawals": {
+      "get": {
+        "summary": "Получение информации о выводе средств",
+        "description": "Хендлер доступен только авторизованному пользователю. Факты выводов в выдаче должны быть отсортированы по времени вывода от самых старых к самым новым. Формат даты — RFC3339.",
+        "operationId": "GopherMarket_GetWithdrawals",
+        "responses": {
+          "200": {
+            "description": "успешная обработка запроса.",
+            "schema": {
+              "$ref": "#/definitions/v1WithdrawsResponse"
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "order": "2377225624",
+                  "sum": 500,
+                  "processed_at": "2020-12-09T16:09:57+03:00"
+                }
+              ]
+            }
+          },
+          "204": {
+            "description": "нет ни одного списания.",
+            "schema": {}
+          },
+          "401": {
+            "description": "пользователь не авторизован.",
+            "schema": {}
+          },
+          "500": {
+            "description": "внутренняя ошибка сервера.",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "GopherMarket"
+        ],
+        "security": [
+          {
+            "authorization": []
+          }
+        ]
+      }
+    },
     "/api/user/login": {
       "post": {
         "summary": "Аутентификация пользователя",
@@ -75,6 +223,26 @@
             "description": "успешная обработка запроса",
             "schema": {
               "$ref": "#/definitions/v1Empty"
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "number": "9278923470",
+                  "status": "PROCESSED",
+                  "accrual": 500,
+                  "uploaded_at": "2020-12-10T15:15:45+03:00"
+                },
+                {
+                  "number": "12345678903",
+                  "status": "PROCESSING",
+                  "uploaded_at": "2020-12-10T15:12:01+03:00"
+                },
+                {
+                  "number": "346436439",
+                  "status": "INVALID",
+                  "uploaded_at": "2020-12-09T16:09:53+03:00"
+                }
+              ]
             }
           },
           "204": {
@@ -98,6 +266,11 @@
         },
         "tags": [
           "GopherMarket"
+        ],
+        "security": [
+          {
+            "authorization": []
+          }
         ]
       },
       "post": {
@@ -146,6 +319,11 @@
         ],
         "tags": [
           "GopherMarket"
+        ],
+        "security": [
+          {
+            "authorization": []
+          }
         ]
       }
     },
@@ -245,6 +423,19 @@
         "password"
       ]
     },
+    "v1Balance": {
+      "type": "object",
+      "properties": {
+        "Current": {
+          "type": "number",
+          "format": "double"
+        },
+        "withdrawn": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "v1Empty": {
       "type": "object"
     },
@@ -269,6 +460,32 @@
         },
         "UploadedAt": {
           "type": "string"
+        }
+      }
+    },
+    "v1WithdrawRequest": {
+      "type": "object",
+      "properties": {
+        "Order": {
+          "type": "string"
+        },
+        "Sum": {
+          "type": "string",
+          "format": "int64"
+        },
+        "ProcessedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "v1WithdrawsResponse": {
+      "type": "object",
+      "properties": {
+        "Withdraws": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1WithdrawRequest"
+          }
         }
       }
     }

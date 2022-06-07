@@ -50,8 +50,19 @@ message Order {
   string UploadedAt = 4;
 }
 
+message Balance {
+  double Current     = 1;
+  int64 withdrawn     = 2;
+}
+message WithdrawRequest {
+  string Order = 1;
+  int64 Sum = 2;
+  string ProcessedAt = 3;
+}
 
-
+message WithdrawsResponse {
+  repeated WithdrawRequest Withdraws = 1;
+}
 
 message Empty {}
 
@@ -132,6 +143,12 @@ service GopherMarket {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Загрузка номера заказа"
       description: "Хендлер доступен только аутентифицированным пользователям. Номером заказа является последовательность цифр произвольной длины.Номер заказа может быть проверен на корректность ввода с помощью алгоритма Луна."
+      security: {
+        security_requirement: {
+          key: "authorization";
+          value: {}
+        }
+      }
       responses: {
         key: "200"
         value: {
@@ -171,10 +188,20 @@ service GopherMarket {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Получение списка загруженных номеров заказов"
       description: "Хендлер доступен только авторизованному пользователю. Номера заказа в выдаче должны быть отсортированы по времени загрузки от самых старых к самым новым. Формат даты — RFC3339."
+      security: {
+        security_requirement: {
+          key: "authorization";
+          value: {}
+        }
+      }
       responses: {
         key: "200"
         value: {
           description: "успешная обработка запроса";
+          examples: {
+            key: "application/json"
+            value: '[{"number":"9278923470","status":"PROCESSED","accrual":500,"uploaded_at":"2020-12-10T15:15:45+03:00"},{"number":"12345678903","status":"PROCESSING","uploaded_at":"2020-12-10T15:12:01+03:00"},{"number":"346436439","status":"INVALID","uploaded_at":"2020-12-09T16:09:53+03:00"}]'
+          }
         }
       }
       responses: {
@@ -197,157 +224,130 @@ service GopherMarket {
       }
     };
   }
-  // rpc E(A) returns (Empty) {
-  //   option (google.api.http) = {
-  //     post: "/api/user/login"
-  //     body: "*"
-  //   };
-  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: ""
-  //     description: ""
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //   };
-  // }
-  // rpc E(A) returns (Empty) {
-  //   option (google.api.http) = {
-  //     post: "/api/user/login"
-  //     body: "*"
-  //   };
-  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: ""
-  //     description: ""
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //   };
-  // }
-  // rpc E(A) returns (Empty) {
-  //   option (google.api.http) = {
-  //     post: "/api/user/login"
-  //     body: "*"
-  //   };
-  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: ""
-  //     description: ""
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //   };
-  // }
-  // rpc E(A) returns (Empty) {
-  //   option (google.api.http) = {
-  //     post: "/api/user/login"
-  //     body: "*"
-  //   };
-  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: ""
-  //     description: ""
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //   };
-  // }
-  // rpc E(A) returns (Empty) {
-  //   option (google.api.http) = {
-  //     post: "/api/user/login"
-  //     body: "*"
-  //   };
-  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: ""
-  //     description: ""
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //     responses: {
-  //       key: ""
-  //       value: {
-  //         description: "";
-  //       }
-  //     }
-  //   };
-  // }
-  
+  rpc GetBalance(Empty) returns (Balance) {
+    option (google.api.http) = {
+      get: "/api/user/balance"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получение текущего баланса пользователя"
+      description: "Хендлер доступен только авторизованному пользователю. В ответе должны содержаться данные о текущей сумме баллов лояльности, а также сумме использованных за весь период регистрации баллов."
+      security: {
+        security_requirement: {
+          key: "authorization";
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "успешная обработка запроса.";
+          examples: {
+            key: "application/json"
+            value: '{"current":500.5,"withdrawn":42}'
+          }
+        }
+      }
+      responses: {
+        key: "401"
+        value: {
+          description: "пользователь не авторизован.";
+        }
+      }
+      responses: {
+        key: "500"
+        value: {
+          description: "внутренняя ошибка сервера.";
+        }
+      }
+    };
+  }
+  rpc BalanceWithdraw(WithdrawRequest) returns (Empty) {
+    option (google.api.http) = {
+      post: "/api/user/balance/withdraw"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Запрос на списание средств"
+      description: "Хендлер доступен только авторизованному пользователю. Номер заказа представляет собой гипотетический номер нового заказа пользователя, в счёт оплаты которого списываются баллы."
+      security: {
+        security_requirement: {
+          key: "authorization";
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "успешная обработка запроса";
+        }
+      }
+      responses: {
+        key: "401"
+        value: {
+          description: "пользователь не авторизован";
+        }
+      }
+      responses: {
+        key: "402"
+        value: {
+          description: "на счету недостаточно средств";
+        }
+      }
+      responses: {
+        key: "422"
+        value: {
+          description: "неверный номер заказа";
+        }
+      }
+      responses: {
+        key: "500"
+        value: {
+          description: "внутренняя ошибка сервера";
+        }
+      }
+    };
+  }
+  rpc GetWithdrawals(Empty) returns (WithdrawsResponse) {
+    option (google.api.http) = {
+      get: "/api/user/balance/withdrawals"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получение информации о выводе средств"
+      description: "Хендлер доступен только авторизованному пользователю. Факты выводов в выдаче должны быть отсортированы по времени вывода от самых старых к самым новым. Формат даты — RFC3339."
+      security: {
+        security_requirement: {
+          key: "authorization";
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "успешная обработка запроса.";
+          examples: {
+            key: "application/json"
+            value: '[{"order":"2377225624","sum":500,"processed_at":"2020-12-09T16:09:57+03:00"}]'
+          }
+        }
+      }
+      responses: {
+        key: "204"
+        value: {
+          description: "нет ни одного списания.";
+        }
+      }
+      responses: {
+        key: "401"
+        value: {
+          description: "пользователь не авторизован.";
+        }
+      }
+      responses: {
+        key: "500"
+        value: {
+          description: "внутренняя ошибка сервера.";
+        }
+      }
+    };
+  }
 }
-
-
-
-
-
-// POST /api/user/register — регистрация пользователя;
-// POST /api/user/login — аутентификация пользователя;
-// POST /api/user/orders — загрузка пользователем номера заказа для расчёта;
-// GET /api/user/orders — получение списка загруженных пользователем номеров заказов, статусов их обработки и информации о начислениях;
-// GET /api/user/balance — получение текущего баланса счёта баллов лояльности пользователя;
-// POST /api/user/balance/withdraw — запрос на списание баллов с накопительного счёта в счёт оплаты нового заказа;
-// GET /api/user/balance/withdrawals — получение информации о выводе средств с накопительного счёта пользователем.
