@@ -6,7 +6,10 @@
   },
   "tags": [
     {
-      "name": "GopherMarket"
+      "name": "Public"
+    },
+    {
+      "name": "Private"
     }
   ],
   "schemes": [
@@ -23,7 +26,7 @@
       "get": {
         "summary": "Получение текущего баланса пользователя",
         "description": "Хендлер доступен только авторизованному пользователю. В ответе должны содержаться данные о текущей сумме баллов лояльности, а также сумме использованных за весь период регистрации баллов.",
-        "operationId": "GopherMarket_GetBalance",
+        "operationId": "Private_GetBalance",
         "responses": {
           "200": {
             "description": "успешная обработка запроса.",
@@ -48,12 +51,12 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
         "tags": [
-          "GopherMarket"
+          "Private"
         ],
         "security": [
           {
@@ -66,7 +69,7 @@
       "post": {
         "summary": "Запрос на списание средств",
         "description": "Хендлер доступен только авторизованному пользователю. Номер заказа представляет собой гипотетический номер нового заказа пользователя, в счёт оплаты которого списываются баллы.",
-        "operationId": "GopherMarket_BalanceWithdraw",
+        "operationId": "Private_BalanceWithdraw",
         "responses": {
           "200": {
             "description": "успешная обработка запроса",
@@ -93,7 +96,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -108,7 +111,7 @@
           }
         ],
         "tags": [
-          "GopherMarket"
+          "Private"
         ],
         "security": [
           {
@@ -121,7 +124,7 @@
       "get": {
         "summary": "Получение информации о выводе средств",
         "description": "Хендлер доступен только авторизованному пользователю. Факты выводов в выдаче должны быть отсортированы по времени вывода от самых старых к самым новым. Формат даты — RFC3339.",
-        "operationId": "GopherMarket_GetWithdrawals",
+        "operationId": "Private_GetWithdrawals",
         "responses": {
           "200": {
             "description": "успешная обработка запроса.",
@@ -153,12 +156,12 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
         "tags": [
-          "GopherMarket"
+          "Private"
         ],
         "security": [
           {
@@ -171,7 +174,7 @@
       "post": {
         "summary": "Аутентификация пользователя",
         "description": "Аутентификация производится по паре логин/пароль.",
-        "operationId": "GopherMarket_UsersLogin",
+        "operationId": "Public_UsersLogin",
         "responses": {
           "200": {
             "description": "пользователь успешно аутентифицирован",
@@ -194,7 +197,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -209,7 +212,7 @@
           }
         ],
         "tags": [
-          "GopherMarket"
+          "Public"
         ]
       }
     },
@@ -217,12 +220,15 @@
       "get": {
         "summary": "Получение списка загруженных номеров заказов",
         "description": "Хендлер доступен только авторизованному пользователю. Номера заказа в выдаче должны быть отсортированы по времени загрузки от самых старых к самым новым. Формат даты — RFC3339.",
-        "operationId": "GopherMarket_OrdersGet",
+        "operationId": "Private_OrdersGet",
         "responses": {
           "200": {
             "description": "успешная обработка запроса",
             "schema": {
-              "$ref": "#/definitions/v1Empty"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/v1Order"
+              }
             },
             "examples": {
               "application/json": [
@@ -260,12 +266,12 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
         "tags": [
-          "GopherMarket"
+          "Private"
         ],
         "security": [
           {
@@ -276,7 +282,7 @@
       "post": {
         "summary": "Загрузка номера заказа",
         "description": "Хендлер доступен только аутентифицированным пользователям. Номером заказа является последовательность цифр произвольной длины.Номер заказа может быть проверен на корректность ввода с помощью алгоритма Луна.",
-        "operationId": "GopherMarket_OrdersAdd",
+        "operationId": "Private_OrdersAdd",
         "responses": {
           "200": {
             "description": "номер заказа уже был загружен этим пользователем",
@@ -303,7 +309,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -318,7 +324,7 @@
           }
         ],
         "tags": [
-          "GopherMarket"
+          "Private"
         ],
         "security": [
           {
@@ -331,7 +337,7 @@
       "post": {
         "summary": "Регистрация пользователя",
         "description": "Регистрация производится по паре логин/пароль. Каждый логин должен быть уникальным. После успешной регистрации должна происходить автоматическая аутентификация пользователя.",
-        "operationId": "GopherMarket_UsersRegister",
+        "operationId": "Public_UsersRegister",
         "responses": {
           "200": {
             "description": "пользователь успешно зарегистрирован и аутентифицирован",
@@ -354,7 +360,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -369,22 +375,13 @@
           }
         ],
         "tags": [
-          "GopherMarket"
+          "Public"
         ]
       }
     }
   },
   "definitions": {
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "@type": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {}
-    },
-    "rpcStatus": {
+    "googlerpcStatus": {
       "type": "object",
       "properties": {
         "code": {
@@ -402,6 +399,15 @@
         }
       }
     },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
     "v1AuthRequest": {
       "type": "object",
       "example": {
@@ -409,10 +415,10 @@
         "password": "\u003cpassword\u003e"
       },
       "properties": {
-        "Login": {
+        "login": {
           "type": "string"
         },
-        "Password": {
+        "password": {
           "type": "string"
         }
       },
@@ -426,7 +432,7 @@
     "v1Balance": {
       "type": "object",
       "properties": {
-        "Current": {
+        "current": {
           "type": "number",
           "format": "double"
         },
@@ -448,32 +454,71 @@
         "uploaded_at": "2020-12-10T15:15:45+03:00"
       },
       "properties": {
-        "Number": {
+        "number": {
           "type": "string"
         },
-        "Status": {
-          "type": "string"
+        "status": {
+          "$ref": "#/definitions/v1OrderStatus"
         },
-        "Accrual": {
+        "accrual": {
           "type": "number",
           "format": "double"
         },
-        "UploadedAt": {
+        "uploadedAt": {
           "type": "string"
+        }
+      }
+    },
+    "v1OrderStatus": {
+      "type": "string",
+      "enum": [
+        "REGISTERED",
+        "INVALID",
+        "PROCESSING",
+        "PROCESSED"
+      ],
+      "default": "REGISTERED"
+    },
+    "v1OrdersResponse": {
+      "type": "object",
+      "example": [
+        {
+          "number": "9278923470",
+          "status": "PROCESSED",
+          "accrual": 500,
+          "uploaded_at": "2020-12-10T15:15:45+03:00"
+        },
+        {
+          "number": "12345678903",
+          "status": "PROCESSING",
+          "uploaded_at": "2020-12-10T15:12:01+03:00"
+        },
+        {
+          "number": "346436439",
+          "status": "INVALID",
+          "uploaded_at": "2020-12-09T16:09:53+03:00"
+        }
+      ],
+      "properties": {
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Order"
+          }
         }
       }
     },
     "v1WithdrawRequest": {
       "type": "object",
       "properties": {
-        "Order": {
+        "order": {
           "type": "string"
         },
-        "Sum": {
+        "sum": {
           "type": "string",
           "format": "int64"
         },
-        "ProcessedAt": {
+        "processedAt": {
           "type": "string"
         }
       }
@@ -481,7 +526,7 @@
     "v1WithdrawsResponse": {
       "type": "object",
       "properties": {
-        "Withdraws": {
+        "withdraws": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1WithdrawRequest"

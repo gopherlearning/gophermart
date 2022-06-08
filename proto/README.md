@@ -16,8 +16,13 @@ protoc -I . \
   --grpc-gateway_opt logtostderr=true \
   --grpc-gateway_opt paths=source_relative \
   --grpc-gateway_opt generate_unbound_methods=true \
+  --grpc-gateway_opt allow_repeated_fields_in_body=true \
   --openapiv2_out ./ \
+  --openapiv2_opt allow_repeated_fields_in_body=true \
   --openapiv2_opt logtostderr=true \
   v1/market.proto
+
+
+
 
 ```

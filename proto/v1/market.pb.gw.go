@@ -31,7 +31,7 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_GopherMarket_UsersRegister_0(ctx context.Context, marshaler runtime.Marshaler, client GopherMarketClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Public_UsersRegister_0(ctx context.Context, marshaler runtime.Marshaler, client PublicClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AuthRequest
 	var metadata runtime.ServerMetadata
 
@@ -48,7 +48,7 @@ func request_GopherMarket_UsersRegister_0(ctx context.Context, marshaler runtime
 
 }
 
-func local_request_GopherMarket_UsersRegister_0(ctx context.Context, marshaler runtime.Marshaler, server GopherMarketServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Public_UsersRegister_0(ctx context.Context, marshaler runtime.Marshaler, server PublicServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AuthRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_GopherMarket_UsersRegister_0(ctx context.Context, marshaler r
 
 }
 
-func request_GopherMarket_UsersLogin_0(ctx context.Context, marshaler runtime.Marshaler, client GopherMarketClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Public_UsersLogin_0(ctx context.Context, marshaler runtime.Marshaler, client PublicClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AuthRequest
 	var metadata runtime.ServerMetadata
 
@@ -82,7 +82,7 @@ func request_GopherMarket_UsersLogin_0(ctx context.Context, marshaler runtime.Ma
 
 }
 
-func local_request_GopherMarket_UsersLogin_0(ctx context.Context, marshaler runtime.Marshaler, server GopherMarketServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Public_UsersLogin_0(ctx context.Context, marshaler runtime.Marshaler, server PublicServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AuthRequest
 	var metadata runtime.ServerMetadata
 
@@ -99,7 +99,7 @@ func local_request_GopherMarket_UsersLogin_0(ctx context.Context, marshaler runt
 
 }
 
-func request_GopherMarket_OrdersAdd_0(ctx context.Context, marshaler runtime.Marshaler, client GopherMarketClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Private_OrdersAdd_0(ctx context.Context, marshaler runtime.Marshaler, client PrivateClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderRequest
 	var metadata runtime.ServerMetadata
 
@@ -116,7 +116,7 @@ func request_GopherMarket_OrdersAdd_0(ctx context.Context, marshaler runtime.Mar
 
 }
 
-func local_request_GopherMarket_OrdersAdd_0(ctx context.Context, marshaler runtime.Marshaler, server GopherMarketServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Private_OrdersAdd_0(ctx context.Context, marshaler runtime.Marshaler, server PrivateServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderRequest
 	var metadata runtime.ServerMetadata
 
@@ -133,43 +133,25 @@ func local_request_GopherMarket_OrdersAdd_0(ctx context.Context, marshaler runti
 
 }
 
-var (
-	filter_GopherMarket_OrdersGet_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
-
-func request_GopherMarket_OrdersGet_0(ctx context.Context, marshaler runtime.Marshaler, client GopherMarketClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq OrdersRequest
+func request_Private_OrdersGet_0(ctx context.Context, marshaler runtime.Marshaler, client PrivateClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq Empty
 	var metadata runtime.ServerMetadata
-
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_GopherMarket_OrdersGet_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := client.OrdersGet(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_GopherMarket_OrdersGet_0(ctx context.Context, marshaler runtime.Marshaler, server GopherMarketServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq OrdersRequest
+func local_request_Private_OrdersGet_0(ctx context.Context, marshaler runtime.Marshaler, server PrivateServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq Empty
 	var metadata runtime.ServerMetadata
-
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_GopherMarket_OrdersGet_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := server.OrdersGet(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_GopherMarket_GetBalance_0(ctx context.Context, marshaler runtime.Marshaler, client GopherMarketClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Private_GetBalance_0(ctx context.Context, marshaler runtime.Marshaler, client PrivateClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq Empty
 	var metadata runtime.ServerMetadata
 
@@ -178,7 +160,7 @@ func request_GopherMarket_GetBalance_0(ctx context.Context, marshaler runtime.Ma
 
 }
 
-func local_request_GopherMarket_GetBalance_0(ctx context.Context, marshaler runtime.Marshaler, server GopherMarketServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Private_GetBalance_0(ctx context.Context, marshaler runtime.Marshaler, server PrivateServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq Empty
 	var metadata runtime.ServerMetadata
 
@@ -187,7 +169,7 @@ func local_request_GopherMarket_GetBalance_0(ctx context.Context, marshaler runt
 
 }
 
-func request_GopherMarket_BalanceWithdraw_0(ctx context.Context, marshaler runtime.Marshaler, client GopherMarketClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Private_BalanceWithdraw_0(ctx context.Context, marshaler runtime.Marshaler, client PrivateClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq WithdrawRequest
 	var metadata runtime.ServerMetadata
 
@@ -204,7 +186,7 @@ func request_GopherMarket_BalanceWithdraw_0(ctx context.Context, marshaler runti
 
 }
 
-func local_request_GopherMarket_BalanceWithdraw_0(ctx context.Context, marshaler runtime.Marshaler, server GopherMarketServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Private_BalanceWithdraw_0(ctx context.Context, marshaler runtime.Marshaler, server PrivateServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq WithdrawRequest
 	var metadata runtime.ServerMetadata
 
@@ -221,7 +203,7 @@ func local_request_GopherMarket_BalanceWithdraw_0(ctx context.Context, marshaler
 
 }
 
-func request_GopherMarket_GetWithdrawals_0(ctx context.Context, marshaler runtime.Marshaler, client GopherMarketClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Private_GetWithdrawals_0(ctx context.Context, marshaler runtime.Marshaler, client PrivateClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq Empty
 	var metadata runtime.ServerMetadata
 
@@ -230,7 +212,7 @@ func request_GopherMarket_GetWithdrawals_0(ctx context.Context, marshaler runtim
 
 }
 
-func local_request_GopherMarket_GetWithdrawals_0(ctx context.Context, marshaler runtime.Marshaler, server GopherMarketServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Private_GetWithdrawals_0(ctx context.Context, marshaler runtime.Marshaler, server PrivateServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq Empty
 	var metadata runtime.ServerMetadata
 
@@ -239,25 +221,25 @@ func local_request_GopherMarket_GetWithdrawals_0(ctx context.Context, marshaler 
 
 }
 
-// RegisterGopherMarketHandlerServer registers the http handlers for service GopherMarket to "mux".
-// UnaryRPC     :call GopherMarketServer directly.
+// RegisterPublicHandlerServer registers the http handlers for service Public to "mux".
+// UnaryRPC     :call PublicServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterGopherMarketHandlerFromEndpoint instead.
-func RegisterGopherMarketHandlerServer(ctx context.Context, mux *runtime.ServeMux, server GopherMarketServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPublicHandlerFromEndpoint instead.
+func RegisterPublicHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PublicServer) error {
 
-	mux.Handle("POST", pattern_GopherMarket_UsersRegister_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Public_UsersRegister_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/UsersRegister", runtime.WithHTTPPathPattern("/api/user/register"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Public/UsersRegister", runtime.WithHTTPPathPattern("/api/user/register"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_GopherMarket_UsersRegister_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Public_UsersRegister_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -265,23 +247,23 @@ func RegisterGopherMarketHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_GopherMarket_UsersRegister_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Public_UsersRegister_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_GopherMarket_UsersLogin_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Public_UsersLogin_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/UsersLogin", runtime.WithHTTPPathPattern("/api/user/login"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Public/UsersLogin", runtime.WithHTTPPathPattern("/api/user/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_GopherMarket_UsersLogin_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Public_UsersLogin_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -289,136 +271,145 @@ func RegisterGopherMarketHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_GopherMarket_UsersLogin_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("POST", pattern_GopherMarket_OrdersAdd_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/OrdersAdd", runtime.WithHTTPPathPattern("/api/user/orders"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_GopherMarket_OrdersAdd_0(ctx, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_OrdersAdd_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("GET", pattern_GopherMarket_OrdersGet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/OrdersGet", runtime.WithHTTPPathPattern("/api/user/orders"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_GopherMarket_OrdersGet_0(ctx, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_OrdersGet_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("GET", pattern_GopherMarket_GetBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/GetBalance", runtime.WithHTTPPathPattern("/api/user/balance"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_GopherMarket_GetBalance_0(ctx, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_GetBalance_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("POST", pattern_GopherMarket_BalanceWithdraw_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/BalanceWithdraw", runtime.WithHTTPPathPattern("/api/user/balance/withdraw"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_GopherMarket_BalanceWithdraw_0(ctx, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_BalanceWithdraw_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("GET", pattern_GopherMarket_GetWithdrawals_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/GetWithdrawals", runtime.WithHTTPPathPattern("/api/user/balance/withdrawals"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_GopherMarket_GetWithdrawals_0(ctx, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_GetWithdrawals_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Public_UsersLogin_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterGopherMarketHandlerFromEndpoint is same as RegisterGopherMarketHandler but
+// RegisterPrivateHandlerServer registers the http handlers for service Private to "mux".
+// UnaryRPC     :call PrivateServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPrivateHandlerFromEndpoint instead.
+func RegisterPrivateHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PrivateServer) error {
+
+	mux.Handle("POST", pattern_Private_OrdersAdd_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Private/OrdersAdd", runtime.WithHTTPPathPattern("/api/user/orders"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Private_OrdersAdd_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_OrdersAdd_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Private_OrdersGet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Private/OrdersGet", runtime.WithHTTPPathPattern("/api/user/orders"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Private_OrdersGet_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_OrdersGet_0(ctx, mux, outboundMarshaler, w, req, response_Private_OrdersGet_0{resp}, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Private_GetBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Private/GetBalance", runtime.WithHTTPPathPattern("/api/user/balance"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Private_GetBalance_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_GetBalance_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_Private_BalanceWithdraw_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Private/BalanceWithdraw", runtime.WithHTTPPathPattern("/api/user/balance/withdraw"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Private_BalanceWithdraw_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_BalanceWithdraw_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Private_GetWithdrawals_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Private/GetWithdrawals", runtime.WithHTTPPathPattern("/api/user/balance/withdrawals"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Private_GetWithdrawals_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_GetWithdrawals_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+// RegisterPublicHandlerFromEndpoint is same as RegisterPublicHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterGopherMarketHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterPublicHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -438,166 +429,61 @@ func RegisterGopherMarketHandlerFromEndpoint(ctx context.Context, mux *runtime.S
 		}()
 	}()
 
-	return RegisterGopherMarketHandler(ctx, mux, conn)
+	return RegisterPublicHandler(ctx, mux, conn)
 }
 
-// RegisterGopherMarketHandler registers the http handlers for service GopherMarket to "mux".
+// RegisterPublicHandler registers the http handlers for service Public to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterGopherMarketHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterGopherMarketHandlerClient(ctx, mux, NewGopherMarketClient(conn))
+func RegisterPublicHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterPublicHandlerClient(ctx, mux, NewPublicClient(conn))
 }
 
-// RegisterGopherMarketHandlerClient registers the http handlers for service GopherMarket
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "GopherMarketClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "GopherMarketClient"
+// RegisterPublicHandlerClient registers the http handlers for service Public
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "PublicClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "PublicClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "GopherMarketClient" to call the correct interceptors.
-func RegisterGopherMarketHandlerClient(ctx context.Context, mux *runtime.ServeMux, client GopherMarketClient) error {
+// "PublicClient" to call the correct interceptors.
+func RegisterPublicHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PublicClient) error {
 
-	mux.Handle("POST", pattern_GopherMarket_UsersRegister_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Public_UsersRegister_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/UsersRegister", runtime.WithHTTPPathPattern("/api/user/register"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Public/UsersRegister", runtime.WithHTTPPathPattern("/api/user/register"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_GopherMarket_UsersRegister_0(ctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Public_UsersRegister_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_GopherMarket_UsersRegister_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Public_UsersRegister_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_GopherMarket_UsersLogin_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Public_UsersLogin_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/UsersLogin", runtime.WithHTTPPathPattern("/api/user/login"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Public/UsersLogin", runtime.WithHTTPPathPattern("/api/user/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_GopherMarket_UsersLogin_0(ctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Public_UsersLogin_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_GopherMarket_UsersLogin_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("POST", pattern_GopherMarket_OrdersAdd_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/OrdersAdd", runtime.WithHTTPPathPattern("/api/user/orders"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_GopherMarket_OrdersAdd_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_OrdersAdd_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("GET", pattern_GopherMarket_OrdersGet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/OrdersGet", runtime.WithHTTPPathPattern("/api/user/orders"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_GopherMarket_OrdersGet_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_OrdersGet_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("GET", pattern_GopherMarket_GetBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/GetBalance", runtime.WithHTTPPathPattern("/api/user/balance"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_GopherMarket_GetBalance_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_GetBalance_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("POST", pattern_GopherMarket_BalanceWithdraw_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/BalanceWithdraw", runtime.WithHTTPPathPattern("/api/user/balance/withdraw"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_GopherMarket_BalanceWithdraw_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_BalanceWithdraw_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("GET", pattern_GopherMarket_GetWithdrawals_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.GopherMarket/GetWithdrawals", runtime.WithHTTPPathPattern("/api/user/balance/withdrawals"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_GopherMarket_GetWithdrawals_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_GopherMarket_GetWithdrawals_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Public_UsersLogin_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -605,33 +491,192 @@ func RegisterGopherMarketHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_GopherMarket_UsersRegister_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "register"}, ""))
+	pattern_Public_UsersRegister_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "register"}, ""))
 
-	pattern_GopherMarket_UsersLogin_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "login"}, ""))
-
-	pattern_GopherMarket_OrdersAdd_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "orders"}, ""))
-
-	pattern_GopherMarket_OrdersGet_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "orders"}, ""))
-
-	pattern_GopherMarket_GetBalance_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "balance"}, ""))
-
-	pattern_GopherMarket_BalanceWithdraw_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "user", "balance", "withdraw"}, ""))
-
-	pattern_GopherMarket_GetWithdrawals_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "user", "balance", "withdrawals"}, ""))
+	pattern_Public_UsersLogin_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "login"}, ""))
 )
 
 var (
-	forward_GopherMarket_UsersRegister_0 = runtime.ForwardResponseMessage
+	forward_Public_UsersRegister_0 = runtime.ForwardResponseMessage
 
-	forward_GopherMarket_UsersLogin_0 = runtime.ForwardResponseMessage
+	forward_Public_UsersLogin_0 = runtime.ForwardResponseMessage
+)
 
-	forward_GopherMarket_OrdersAdd_0 = runtime.ForwardResponseMessage
+// RegisterPrivateHandlerFromEndpoint is same as RegisterPrivateHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterPrivateHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.Dial(endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
 
-	forward_GopherMarket_OrdersGet_0 = runtime.ForwardResponseMessage
+	return RegisterPrivateHandler(ctx, mux, conn)
+}
 
-	forward_GopherMarket_GetBalance_0 = runtime.ForwardResponseMessage
+// RegisterPrivateHandler registers the http handlers for service Private to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterPrivateHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterPrivateHandlerClient(ctx, mux, NewPrivateClient(conn))
+}
 
-	forward_GopherMarket_BalanceWithdraw_0 = runtime.ForwardResponseMessage
+// RegisterPrivateHandlerClient registers the http handlers for service Private
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "PrivateClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "PrivateClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "PrivateClient" to call the correct interceptors.
+func RegisterPrivateHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PrivateClient) error {
 
-	forward_GopherMarket_GetWithdrawals_0 = runtime.ForwardResponseMessage
+	mux.Handle("POST", pattern_Private_OrdersAdd_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Private/OrdersAdd", runtime.WithHTTPPathPattern("/api/user/orders"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Private_OrdersAdd_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_OrdersAdd_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Private_OrdersGet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Private/OrdersGet", runtime.WithHTTPPathPattern("/api/user/orders"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Private_OrdersGet_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_OrdersGet_0(ctx, mux, outboundMarshaler, w, req, response_Private_OrdersGet_0{resp}, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Private_GetBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Private/GetBalance", runtime.WithHTTPPathPattern("/api/user/balance"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Private_GetBalance_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_GetBalance_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_Private_BalanceWithdraw_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Private/BalanceWithdraw", runtime.WithHTTPPathPattern("/api/user/balance/withdraw"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Private_BalanceWithdraw_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_BalanceWithdraw_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Private_GetWithdrawals_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Private/GetWithdrawals", runtime.WithHTTPPathPattern("/api/user/balance/withdrawals"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Private_GetWithdrawals_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Private_GetWithdrawals_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+type response_Private_OrdersGet_0 struct {
+	proto.Message
+}
+
+func (m response_Private_OrdersGet_0) XXX_ResponseBody() interface{} {
+	response := m.Message.(*OrdersResponse)
+	return response.Orders
+}
+
+var (
+	pattern_Private_OrdersAdd_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "orders"}, ""))
+
+	pattern_Private_OrdersGet_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "orders"}, ""))
+
+	pattern_Private_GetBalance_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "balance"}, ""))
+
+	pattern_Private_BalanceWithdraw_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "user", "balance", "withdraw"}, ""))
+
+	pattern_Private_GetWithdrawals_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "user", "balance", "withdrawals"}, ""))
+)
+
+var (
+	forward_Private_OrdersAdd_0 = runtime.ForwardResponseMessage
+
+	forward_Private_OrdersGet_0 = runtime.ForwardResponseMessage
+
+	forward_Private_GetBalance_0 = runtime.ForwardResponseMessage
+
+	forward_Private_BalanceWithdraw_0 = runtime.ForwardResponseMessage
+
+	forward_Private_GetWithdrawals_0 = runtime.ForwardResponseMessage
 )

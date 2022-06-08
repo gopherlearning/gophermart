@@ -4,6 +4,7 @@ option go_package = "github.com/gopherlearning/gophermart/proto/v1";
 
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+// import "google/protobuf/struct.proto";
 
 // These annotations are used when generating the OpenAPI file.
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
@@ -29,44 +30,53 @@ message AuthRequest {
     }
     example: "{\"login\":\"<login>\",\"password\":\"<password>\"}"
   };
-  string Login    = 1;
-  string Password = 2;
+  string login    = 1;
+  string password = 2;
 }
 message OrderRequest {
   string Order = 1;
 }
 
-message OrdersRequest {
-  repeated Order Orders = 1;
+message OrdersResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: '[{"number":"9278923470","status":"PROCESSED","accrual":500,"uploaded_at":"2020-12-10T15:15:45+03:00"},{"number":"12345678903","status":"PROCESSING","uploaded_at":"2020-12-10T15:12:01+03:00"},{"number":"346436439","status":"INVALID","uploaded_at":"2020-12-09T16:09:53+03:00"}]'
+  };
+  repeated Order orders = 1;
 }
 
 message Order {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"number\": \"9278923470\",\"status\": \"PROCESSED\",\"accrual\": 500,\"uploaded_at\": \"2020-12-10T15:15:45+03:00\"}"
   };
-  string Number     = 1;
-  string Status     = 2;
-  double Accrual    = 3;
-  string UploadedAt = 4;
+  enum Status {
+    REGISTERED  = 0;
+    INVALID     = 1;
+    PROCESSING  = 2;
+    PROCESSED   = 3;
+  }
+  string number     = 1;
+  Status status     = 2;
+  double accrual    = 3;
+  string uploaded_at = 4;
 }
 
 message Balance {
-  double Current     = 1;
-  int64 withdrawn     = 2;
+  double  current     = 1;
+  int64   withdrawn     = 2;
 }
 message WithdrawRequest {
-  string Order = 1;
-  int64 Sum = 2;
-  string ProcessedAt = 3;
+  string order = 1;
+  int64 sum = 2;
+  string processed_at = 3;
 }
 
 message WithdrawsResponse {
-  repeated WithdrawRequest Withdraws = 1;
+  repeated WithdrawRequest withdraws = 1;
 }
 
 message Empty {}
 
-service GopherMarket {
+service Public {
   rpc UsersRegister(AuthRequest) returns (Empty) {
     option (google.api.http) = {
       post: "/api/user/register"
@@ -135,6 +145,10 @@ service GopherMarket {
       }
     };
   }
+}
+
+
+service Private {
   rpc OrdersAdd(OrderRequest) returns (Empty) {
     option (google.api.http) = {
       post: "/api/user/orders"
@@ -181,9 +195,10 @@ service GopherMarket {
       }
     };
   }
-  rpc OrdersGet(OrdersRequest) returns (Empty) {
+  rpc OrdersGet(Empty) returns (OrdersResponse) {
     option (google.api.http) = {
       get: "/api/user/orders"
+      response_body: "orders"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Получение списка загруженных номеров заказов"

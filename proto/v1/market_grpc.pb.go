@@ -18,302 +18,352 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// GopherMarketClient is the client API for GopherMarket service.
+// PublicClient is the client API for Public service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GopherMarketClient interface {
+type PublicClient interface {
 	UsersRegister(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*Empty, error)
 	UsersLogin(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*Empty, error)
+}
+
+type publicClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPublicClient(cc grpc.ClientConnInterface) PublicClient {
+	return &publicClient{cc}
+}
+
+func (c *publicClient) UsersRegister(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.Public/UsersRegister", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *publicClient) UsersLogin(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.Public/UsersLogin", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PublicServer is the server API for Public service.
+// All implementations must embed UnimplementedPublicServer
+// for forward compatibility
+type PublicServer interface {
+	UsersRegister(context.Context, *AuthRequest) (*Empty, error)
+	UsersLogin(context.Context, *AuthRequest) (*Empty, error)
+	mustEmbedUnimplementedPublicServer()
+}
+
+// UnimplementedPublicServer must be embedded to have forward compatible implementations.
+type UnimplementedPublicServer struct {
+}
+
+func (UnimplementedPublicServer) UsersRegister(context.Context, *AuthRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UsersRegister not implemented")
+}
+func (UnimplementedPublicServer) UsersLogin(context.Context, *AuthRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UsersLogin not implemented")
+}
+func (UnimplementedPublicServer) mustEmbedUnimplementedPublicServer() {}
+
+// UnsafePublicServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PublicServer will
+// result in compilation errors.
+type UnsafePublicServer interface {
+	mustEmbedUnimplementedPublicServer()
+}
+
+func RegisterPublicServer(s grpc.ServiceRegistrar, srv PublicServer) {
+	s.RegisterService(&Public_ServiceDesc, srv)
+}
+
+func _Public_UsersRegister_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PublicServer).UsersRegister(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gopher.market.v1.Public/UsersRegister",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PublicServer).UsersRegister(ctx, req.(*AuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Public_UsersLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PublicServer).UsersLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gopher.market.v1.Public/UsersLogin",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PublicServer).UsersLogin(ctx, req.(*AuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Public_ServiceDesc is the grpc.ServiceDesc for Public service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Public_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "gopher.market.v1.Public",
+	HandlerType: (*PublicServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "UsersRegister",
+			Handler:    _Public_UsersRegister_Handler,
+		},
+		{
+			MethodName: "UsersLogin",
+			Handler:    _Public_UsersLogin_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "v1/market.proto",
+}
+
+// PrivateClient is the client API for Private service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PrivateClient interface {
 	OrdersAdd(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*Empty, error)
-	OrdersGet(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*Empty, error)
+	OrdersGet(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*OrdersResponse, error)
 	GetBalance(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Balance, error)
 	BalanceWithdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*Empty, error)
 	GetWithdrawals(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*WithdrawsResponse, error)
 }
 
-type gopherMarketClient struct {
+type privateClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewGopherMarketClient(cc grpc.ClientConnInterface) GopherMarketClient {
-	return &gopherMarketClient{cc}
+func NewPrivateClient(cc grpc.ClientConnInterface) PrivateClient {
+	return &privateClient{cc}
 }
 
-func (c *gopherMarketClient) UsersRegister(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *privateClient) OrdersAdd(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/UsersRegister", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.Private/OrdersAdd", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *gopherMarketClient) UsersLogin(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/UsersLogin", in, out, opts...)
+func (c *privateClient) OrdersGet(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*OrdersResponse, error) {
+	out := new(OrdersResponse)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.Private/OrdersGet", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *gopherMarketClient) OrdersAdd(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/OrdersAdd", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *gopherMarketClient) OrdersGet(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/OrdersGet", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *gopherMarketClient) GetBalance(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Balance, error) {
+func (c *privateClient) GetBalance(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Balance, error) {
 	out := new(Balance)
-	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/GetBalance", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.Private/GetBalance", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *gopherMarketClient) BalanceWithdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *privateClient) BalanceWithdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/BalanceWithdraw", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.Private/BalanceWithdraw", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *gopherMarketClient) GetWithdrawals(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*WithdrawsResponse, error) {
+func (c *privateClient) GetWithdrawals(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*WithdrawsResponse, error) {
 	out := new(WithdrawsResponse)
-	err := c.cc.Invoke(ctx, "/gopher.market.v1.GopherMarket/GetWithdrawals", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gopher.market.v1.Private/GetWithdrawals", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// GopherMarketServer is the server API for GopherMarket service.
-// All implementations must embed UnimplementedGopherMarketServer
+// PrivateServer is the server API for Private service.
+// All implementations must embed UnimplementedPrivateServer
 // for forward compatibility
-type GopherMarketServer interface {
-	UsersRegister(context.Context, *AuthRequest) (*Empty, error)
-	UsersLogin(context.Context, *AuthRequest) (*Empty, error)
+type PrivateServer interface {
 	OrdersAdd(context.Context, *OrderRequest) (*Empty, error)
-	OrdersGet(context.Context, *OrdersRequest) (*Empty, error)
+	OrdersGet(context.Context, *Empty) (*OrdersResponse, error)
 	GetBalance(context.Context, *Empty) (*Balance, error)
 	BalanceWithdraw(context.Context, *WithdrawRequest) (*Empty, error)
 	GetWithdrawals(context.Context, *Empty) (*WithdrawsResponse, error)
-	mustEmbedUnimplementedGopherMarketServer()
+	mustEmbedUnimplementedPrivateServer()
 }
 
-// UnimplementedGopherMarketServer must be embedded to have forward compatible implementations.
-type UnimplementedGopherMarketServer struct {
+// UnimplementedPrivateServer must be embedded to have forward compatible implementations.
+type UnimplementedPrivateServer struct {
 }
 
-func (UnimplementedGopherMarketServer) UsersRegister(context.Context, *AuthRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UsersRegister not implemented")
-}
-func (UnimplementedGopherMarketServer) UsersLogin(context.Context, *AuthRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UsersLogin not implemented")
-}
-func (UnimplementedGopherMarketServer) OrdersAdd(context.Context, *OrderRequest) (*Empty, error) {
+func (UnimplementedPrivateServer) OrdersAdd(context.Context, *OrderRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrdersAdd not implemented")
 }
-func (UnimplementedGopherMarketServer) OrdersGet(context.Context, *OrdersRequest) (*Empty, error) {
+func (UnimplementedPrivateServer) OrdersGet(context.Context, *Empty) (*OrdersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrdersGet not implemented")
 }
-func (UnimplementedGopherMarketServer) GetBalance(context.Context, *Empty) (*Balance, error) {
+func (UnimplementedPrivateServer) GetBalance(context.Context, *Empty) (*Balance, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBalance not implemented")
 }
-func (UnimplementedGopherMarketServer) BalanceWithdraw(context.Context, *WithdrawRequest) (*Empty, error) {
+func (UnimplementedPrivateServer) BalanceWithdraw(context.Context, *WithdrawRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BalanceWithdraw not implemented")
 }
-func (UnimplementedGopherMarketServer) GetWithdrawals(context.Context, *Empty) (*WithdrawsResponse, error) {
+func (UnimplementedPrivateServer) GetWithdrawals(context.Context, *Empty) (*WithdrawsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWithdrawals not implemented")
 }
-func (UnimplementedGopherMarketServer) mustEmbedUnimplementedGopherMarketServer() {}
+func (UnimplementedPrivateServer) mustEmbedUnimplementedPrivateServer() {}
 
-// UnsafeGopherMarketServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GopherMarketServer will
+// UnsafePrivateServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PrivateServer will
 // result in compilation errors.
-type UnsafeGopherMarketServer interface {
-	mustEmbedUnimplementedGopherMarketServer()
+type UnsafePrivateServer interface {
+	mustEmbedUnimplementedPrivateServer()
 }
 
-func RegisterGopherMarketServer(s grpc.ServiceRegistrar, srv GopherMarketServer) {
-	s.RegisterService(&GopherMarket_ServiceDesc, srv)
+func RegisterPrivateServer(s grpc.ServiceRegistrar, srv PrivateServer) {
+	s.RegisterService(&Private_ServiceDesc, srv)
 }
 
-func _GopherMarket_UsersRegister_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GopherMarketServer).UsersRegister(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/gopher.market.v1.GopherMarket/UsersRegister",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GopherMarketServer).UsersRegister(ctx, req.(*AuthRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _GopherMarket_UsersLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GopherMarketServer).UsersLogin(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/gopher.market.v1.GopherMarket/UsersLogin",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GopherMarketServer).UsersLogin(ctx, req.(*AuthRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _GopherMarket_OrdersAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Private_OrdersAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GopherMarketServer).OrdersAdd(ctx, in)
+		return srv.(PrivateServer).OrdersAdd(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/gopher.market.v1.GopherMarket/OrdersAdd",
+		FullMethod: "/gopher.market.v1.Private/OrdersAdd",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GopherMarketServer).OrdersAdd(ctx, req.(*OrderRequest))
+		return srv.(PrivateServer).OrdersAdd(ctx, req.(*OrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GopherMarket_OrdersGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrdersRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GopherMarketServer).OrdersGet(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/gopher.market.v1.GopherMarket/OrdersGet",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GopherMarketServer).OrdersGet(ctx, req.(*OrdersRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _GopherMarket_GetBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Private_OrdersGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GopherMarketServer).GetBalance(ctx, in)
+		return srv.(PrivateServer).OrdersGet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/gopher.market.v1.GopherMarket/GetBalance",
+		FullMethod: "/gopher.market.v1.Private/OrdersGet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GopherMarketServer).GetBalance(ctx, req.(*Empty))
+		return srv.(PrivateServer).OrdersGet(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GopherMarket_BalanceWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Private_GetBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PrivateServer).GetBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gopher.market.v1.Private/GetBalance",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PrivateServer).GetBalance(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Private_BalanceWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(WithdrawRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GopherMarketServer).BalanceWithdraw(ctx, in)
+		return srv.(PrivateServer).BalanceWithdraw(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/gopher.market.v1.GopherMarket/BalanceWithdraw",
+		FullMethod: "/gopher.market.v1.Private/BalanceWithdraw",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GopherMarketServer).BalanceWithdraw(ctx, req.(*WithdrawRequest))
+		return srv.(PrivateServer).BalanceWithdraw(ctx, req.(*WithdrawRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GopherMarket_GetWithdrawals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Private_GetWithdrawals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GopherMarketServer).GetWithdrawals(ctx, in)
+		return srv.(PrivateServer).GetWithdrawals(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/gopher.market.v1.GopherMarket/GetWithdrawals",
+		FullMethod: "/gopher.market.v1.Private/GetWithdrawals",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GopherMarketServer).GetWithdrawals(ctx, req.(*Empty))
+		return srv.(PrivateServer).GetWithdrawals(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// GopherMarket_ServiceDesc is the grpc.ServiceDesc for GopherMarket service.
+// Private_ServiceDesc is the grpc.ServiceDesc for Private service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var GopherMarket_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gopher.market.v1.GopherMarket",
-	HandlerType: (*GopherMarketServer)(nil),
+var Private_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "gopher.market.v1.Private",
+	HandlerType: (*PrivateServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "UsersRegister",
-			Handler:    _GopherMarket_UsersRegister_Handler,
-		},
-		{
-			MethodName: "UsersLogin",
-			Handler:    _GopherMarket_UsersLogin_Handler,
-		},
-		{
 			MethodName: "OrdersAdd",
-			Handler:    _GopherMarket_OrdersAdd_Handler,
+			Handler:    _Private_OrdersAdd_Handler,
 		},
 		{
 			MethodName: "OrdersGet",
-			Handler:    _GopherMarket_OrdersGet_Handler,
+			Handler:    _Private_OrdersGet_Handler,
 		},
 		{
 			MethodName: "GetBalance",
-			Handler:    _GopherMarket_GetBalance_Handler,
+			Handler:    _Private_GetBalance_Handler,
 		},
 		{
 			MethodName: "BalanceWithdraw",
-			Handler:    _GopherMarket_BalanceWithdraw_Handler,
+			Handler:    _Private_BalanceWithdraw_Handler,
 		},
 		{
 			MethodName: "GetWithdrawals",
-			Handler:    _GopherMarket_GetWithdrawals_Handler,
+			Handler:    _Private_GetWithdrawals_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
