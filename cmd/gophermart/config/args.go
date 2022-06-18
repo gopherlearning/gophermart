@@ -12,6 +12,7 @@ type args struct {
 	GRPCServerAddr       string `short:"r" help:"адрес GRPC сервера" env:"RPC_ADDRESS" default:"127.0.0.1:8091"`
 	DatabaseDSN          string `short:"d" help:"строка подключения к БД" env:"DATABASE_URI"` // ТЗ
 	AccuralSystemAddress string `short:"k" help:"Ключ подписи" env:"ACCRUAL_SYSTEM_ADDRESS"`  // ТЗ
+	MockStorage          bool   `short:"m" help:"режим разработчика, использовать локальную базу"`
 }
 
 func (cli *args) GetConfig() string {
