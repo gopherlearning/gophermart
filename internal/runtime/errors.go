@@ -72,6 +72,10 @@ func HTTPStatusFromCode(code codes.Code) int {
 		return http.StatusInternalServerError
 	case codes.Code(http.StatusNoContent):
 		return http.StatusNoContent
+	case codes.Code(http.StatusUnprocessableEntity):
+		return http.StatusUnprocessableEntity
+	case codes.Code(http.StatusAccepted):
+		return http.StatusAccepted
 	}
 
 	grpclog.Infof("Unknown gRPC error code: %v", code)

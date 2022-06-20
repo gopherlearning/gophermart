@@ -7,6 +7,7 @@ import (
 	"github.com/gopherlearning/gophermart/internal/storage"
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -32,5 +33,5 @@ func (s *publicServer) UsersRegister(ctx context.Context, req *v1.AuthRequest) (
 }
 
 func (s *publicServer) UsersLogin(ctx context.Context, req *v1.AuthRequest) (*v1.Empty, error) {
-	panic("not implemented") // TODO: Implement
+	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/gopherlearning/gophermart/internal"
 	"github.com/gopherlearning/gophermart/internal/args"
+	echologrus "github.com/gopherlearning/gophermart/internal/echologrus"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -17,6 +18,7 @@ import (
 )
 
 func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grpc.Server, mux *runtime.ServeMux, tlsConfig *tls.Config, loger logrus.FieldLogger) {
+
 	onStop := args.StartStopFunc(ctx, wg)
 	defer onStop()
 
@@ -24,7 +26,10 @@ func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grp
 		mux.ServeHTTP(resp, req.WithContext(context.WithValue(req.Context(), internal.PathKey, req.URL.Path)))
 	})
 	e := echo.New()
-	e.Use(middleware.Logger())
+	e.HideBanner = true
+	echologrus.SetLoger(loger)
+	e.Logger = echologrus.GetEchoLogger()
+	e.Use(echologrus.Hook())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
