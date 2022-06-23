@@ -3,21 +3,21 @@ package rpc
 import (
 	"context"
 	"crypto/tls"
+	_ "embed"
 	"net"
 	"sync"
 
 	"github.com/gopherlearning/gophermart/internal/args"
-	"github.com/gopherlearning/gophermart/internal/storage"
+	"github.com/gopherlearning/gophermart/internal/repository"
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grpc.Server, mux *runtime.ServeMux, db storage.Storage, tlsConfig *tls.Config, loger logrus.FieldLogger) {
+func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grpc.Server, mux *runtime.ServeMux, db repository.Storage, tlsConfig *tls.Config, loger logrus.FieldLogger) {
 	onStop := args.StartStopFunc(ctx, wg)
 	defer onStop()
-
 	public := NewPublicServer(db, loger)
 	v1.RegisterPublicServer(grpcServer, public)
 	private := NewPrivateServer()

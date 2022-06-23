@@ -22,7 +22,7 @@ import (
 	"github.com/gopherlearning/gophermart/cmd/gophermart/server/rpc"
 	"github.com/gopherlearning/gophermart/cmd/gophermart/server/web"
 	"github.com/gopherlearning/gophermart/internal/args"
-	"github.com/gopherlearning/gophermart/internal/storage"
+	"github.com/gopherlearning/gophermart/internal/repository"
 )
 
 // func init() {
@@ -82,7 +82,7 @@ func TestSpec(t *testing.T) {
 				)),
 			)
 			ctx, cancel := context.WithCancel(context.Background())
-			db := storage.NewMockStorage()
+			db := repository.NewMockStorage()
 			wg := &sync.WaitGroup{}
 			loger := logrus.New()
 			loger.SetFormatter(&logrus.TextFormatter{
@@ -92,7 +92,7 @@ func TestSpec(t *testing.T) {
 			loger.SetReportCaller(true)
 			wg.Add(2)
 			go rpc.Run(context.WithValue(ctx, args.ContextKeyJobName, "server web"), wg, "0.0.0.0:7627", grpcServer, mux, db, nil, loger)
-			go web.Run(context.WithValue(ctx, args.ContextKeyJobName, "se web"), wg, "0.0.0.0:7628", grpcServer, mux, nil, loger)
+			go web.Run(context.WithValue(ctx, args.ContextKeyJobName, "se web"), wg, "0.0.0.0:7628", grpcServer, mux, db, nil, loger)
 			time.Sleep(time.Second)
 			wgLocal := &sync.WaitGroup{}
 			wgLocal.Add(4)

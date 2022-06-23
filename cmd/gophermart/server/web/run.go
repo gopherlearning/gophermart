@@ -9,7 +9,7 @@ import (
 
 	"github.com/gopherlearning/gophermart/internal"
 	"github.com/gopherlearning/gophermart/internal/args"
-	echologrus "github.com/gopherlearning/gophermart/internal/echologrus"
+	"github.com/gopherlearning/gophermart/internal/repository"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -17,7 +17,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grpc.Server, mux *runtime.ServeMux, tlsConfig *tls.Config, loger logrus.FieldLogger) {
+func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grpc.Server, mux *runtime.ServeMux, db repository.Storage, tlsConfig *tls.Config, loger logrus.FieldLogger) {
 
 	onStop := args.StartStopFunc(ctx, wg)
 	defer onStop()
@@ -27,9 +27,19 @@ func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grp
 	})
 	e := echo.New()
 	e.HideBanner = true
-	echologrus.SetLoger(loger)
-	e.Logger = echologrus.GetEchoLogger()
-	e.Use(echologrus.Hook())
+	// echologrus.SetLoger(loger)
+	// e.Logger = echologrus.GetEchoLogger()
+	// e.Use(echologrus.Hook())
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			_, err := db.CheckToken(c.Request().Context())
+			if err != nil {
+				return c.HTML(http.StatusForbidden, err.Error())
+			}
+			loger.Info(c.Request().Context().Value(internal.UserID))
+			return next(c)
+		}
+	})
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {

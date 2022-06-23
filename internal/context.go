@@ -7,6 +7,9 @@ type contextKey string
 // PathKey .
 const PathKey contextKey = "path"
 
+// UserID .
+const UserID contextKey = "user_id"
+
 // GetPath .
 func GetPath(ctx context.Context) string {
 	v := ctx.Value(PathKey)
