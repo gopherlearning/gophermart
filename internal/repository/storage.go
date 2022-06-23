@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/golang-jwt/jwt/v4"
+	"google.golang.org/grpc"
 
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
 )
@@ -20,6 +21,7 @@ type Storage interface {
 	GetOrder(ctx context.Context, id string) (*v1.Order, error)
 	GetOrders(ctx context.Context, id string) ([]*v1.Order, error)
 	Withdrawn(ctx context.Context, id string, sum float64)
-	CheckToken(ctx context.Context) (context.Context, error)
-	SigningKey() interface{}
+	UnaryCheckToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
+	StreamCheckToken(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error
+	SigningKey() string
 }

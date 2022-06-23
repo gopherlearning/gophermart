@@ -6,6 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 // MockStorage хранилище для тестов
@@ -28,13 +29,13 @@ func NewMockStorage() Storage {
 func (m *MockStorage) GetUserBySession(_ context.Context, _ *Claim) (*Claim, error) {
 	panic("not implemented") // TODO: Implement
 }
-
-func (m *MockStorage) SigningKey() interface{} { return "123" }
-
-func (m *MockStorage) CheckToken(ctx context.Context) (context.Context, error) {
-
-	return ctx, nil
+func (m *MockStorage) UnaryCheckToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	panic("not implemented") // TODO: Implement
 }
+func (m *MockStorage) StreamCheckToken(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	panic("not implemented") // TODO: Implement
+}
+func (m *MockStorage) SigningKey() string { return "123" }
 
 func (m *MockStorage) CreateOrder(ctx context.Context, id string) error {
 	panic("not implemented") // TODO: Implement

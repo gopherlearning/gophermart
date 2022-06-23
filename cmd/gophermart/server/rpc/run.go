@@ -7,31 +7,35 @@ import (
 	"net"
 	"sync"
 
+	"github.com/gopherlearning/gophermart/cmd/gophermart/config"
 	"github.com/gopherlearning/gophermart/internal/args"
 	"github.com/gopherlearning/gophermart/internal/repository"
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grpc.Server, mux *runtime.ServeMux, db repository.Storage, tlsConfig *tls.Config, loger logrus.FieldLogger) {
 	onStop := args.StartStopFunc(ctx, wg)
 	defer onStop()
 	public := NewPublicServer(db, loger)
-	v1.RegisterPublicServer(grpcServer, public)
 	private := NewPrivateServer()
+	err := v1.RegisterPrivateHandlerFromEndpoint(ctx, mux, config.CLICtl.GRPCServerAddr, []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())})
+	if err != nil {
+		loger.Fatal(err)
+		return
+	}
+	// v1.RegisterPublicHandlerClient(ctx, mux)
+	err = v1.RegisterPublicHandlerFromEndpoint(ctx, mux, config.CLICtl.GRPCServerAddr, []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials())})
+	if err != nil {
+		loger.Fatal(err)
+		return
+	}
+	v1.RegisterPublicServer(grpcServer, public)
 	v1.RegisterPrivateServer(grpcServer, private)
-	err := v1.RegisterPrivateHandlerServer(ctx, mux, private)
-	if err != nil {
-		loger.Fatal(err)
-		return
-	}
-	err = v1.RegisterPublicHandlerServer(ctx, mux, public)
-	if err != nil {
-		loger.Fatal(err)
-		return
-	}
 	go func() {
 		lis, err := net.Listen("tcp", listen)
 		if err != nil {

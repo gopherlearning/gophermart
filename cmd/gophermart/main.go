@@ -10,8 +10,6 @@ import (
 	"github.com/gopherlearning/gophermart/internal/args"
 	"github.com/gopherlearning/gophermart/internal/repository"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -32,25 +30,35 @@ func main() {
 	if config.CLICtl.MockStorage {
 		db = repository.NewMockStorage()
 	} else {
-		db, err = postgres.NewStorage(config.CLICtl.DatabaseDSN, loger)
+		db, err = postgres.NewStorage(config.CLICtl.DatabaseDSN, loger, config.CLICtl.SigningKey)
 		if err != nil {
 			loger.Error(err)
 			return
 		}
 	}
+
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			grpc_auth.StreamServerInterceptor(db.CheckToken),
-			grpc_recovery.StreamServerInterceptor(),
+			// grpc_auth.StreamServerInterceptor(db.CheckToken),
+			// grpc_recovery.StreamServerInterceptor(),
+			db.StreamCheckToken,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_auth.UnaryServerInterceptor(db.CheckToken),
-			grpc_recovery.UnaryServerInterceptor(),
+			// grpc_recovery.UnaryServerInterceptor(),
+			db.UnaryCheckToken,
 		)),
 	)
 	// runtime.WithIncomingHeaderMatcher(),
 	// errHandler := localruntime.DefaultHTTPErrorHandler
 	mux := runtime.NewServeMux(
+		// runtime.WithMetadata(func(c context.Context, req *http.Request) metadata.MD {
+		// 	// token, err := req.Cookie("accesstoken")
+		// 	// if err != nil {
+		// 	// 	return nil
+		// 	// }
+		// 	// loger.Info(token)
+		// 	return metadata.Pairs("accesstoken", "wdadwawdwaawdawadw")
+		// }),
 		runtime.WithErrorHandler(web.DefaultHTTPErrorHandler),
 		runtime.WithOutgoingHeaderMatcher(web.HeaderMatcher),
 		runtime.WithIncomingHeaderMatcher(web.HeaderMatcher),

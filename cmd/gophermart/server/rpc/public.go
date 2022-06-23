@@ -31,8 +31,8 @@ func (s *publicServer) UsersRegister(ctx context.Context, req *v1.AuthRequest) (
 		return nil, status.Error(http.StatusConflict, err.Error())
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, claim)
-	tokenString, err := token.SignedString(s.db.SigningKey())
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	tokenString, err := token.SignedString([]byte(s.db.SigningKey()))
 	if err != nil {
 		return nil, status.Error(http.StatusConflict, err.Error())
 	}

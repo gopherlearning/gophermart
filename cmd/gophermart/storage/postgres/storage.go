@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"crypto/rsa"
 	_ "embed"
 	"fmt"
 	"strconv"
@@ -16,11 +15,11 @@ import (
 	"github.com/gopherlearning/gophermart/internal/migrate"
 	"github.com/gopherlearning/gophermart/internal/repository"
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -32,19 +31,15 @@ type postgresStorage struct {
 	connConfig         *pgxpool.Config
 	loger              logrus.FieldLogger
 	maxConnectAttempts int
+	secretKey          string
 }
 
-func NewStorage(dsn string, loger logrus.FieldLogger) (repository.Storage, error) {
+func NewStorage(dsn string, loger logrus.FieldLogger, secretKey string) (repository.Storage, error) {
 	connConfig, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, err
 	}
-	signingKeyRSA, err = jwt.ParseRSAPrivateKeyFromPEM(signingKey)
-	if err != nil {
-		loger.Error(err)
-		return nil, err
-	}
-	s := &postgresStorage{connConfig: connConfig, loger: loger, maxConnectAttempts: 10}
+	s := &postgresStorage{connConfig: connConfig, loger: loger, maxConnectAttempts: 10, secretKey: secretKey}
 	err = migrate.MigrateFromFS(context.Background(), s.GetConn(context.Background()), &migrations.Migrations, loger)
 	if err != nil {
 		loger.Error(err)
@@ -63,26 +58,52 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func (s *postgresStorage) CheckToken(ctx context.Context) (context.Context, error) {
+// func unaryInterceptor(ctx context.Context,
+// 	req interface{},
+// 	info *grpc.UnaryServerInfo,
+// 	handler grpc.UnaryHandler,
+// ) (interface{}, error) {
+// 	return handler(ctx, req)
+// }
+
+func (s *postgresStorage) StreamCheckToken(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	s.loger.Info("авторизация ", ss.Context())
+	s.loger.Println("--> unary interceptor: ", info.FullMethod)
+	s.loger.Println("--> unary interceptor: ", info.FullMethod)
+	userID, err := s.checkToken(ss.Context(), info.FullMethod)
+	if err != nil {
+		return err
+	}
+	ss.SetHeader(metadata.Pairs(fmt.Sprint(internal.ContextKeyUserID{}), userID))
+	return handler(srv, ss)
+}
+
+func (s *postgresStorage) UnaryCheckToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	s.loger.Info("авторизация ", ctx)
+	s.loger.Println("--> unary interceptor: ", info.FullMethod)
+	s.loger.Println("--> unary interceptor: ", info.FullMethod)
+	userID, err := s.checkToken(ctx, info.FullMethod)
+	if err != nil {
+		return nil, err
+	}
+	return handler(context.WithValue(ctx, internal.ContextKeyUserID{}, userID), req)
+
+}
+
+func (s *postgresStorage) checkToken(ctx context.Context, method string) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-
-		return nil, status.Error(codes.InvalidArgument, "отсутствуют необходимые заголовки 1")
+		return "", status.Error(codes.InvalidArgument, "отсутствуют необходимые заголовки 1.1")
 	}
-
+	s.loger.Info(md)
 	if len(md.Get("cookie")) == 0 {
-		method, ok := runtime.RPCMethod(ctx)
-		if !ok {
-			return nil, status.Error(codes.InvalidArgument, "отсутствуют необходимые заголовки 2")
-		}
 		switch method {
 		case
 			"/gopher.market.v1.Public/UsersRegister",
 			"/gopher.market.v1.Public/UsersLogin":
-			return ctx, nil
+			return "", nil
 		default:
-			return nil, status.Error(codes.PermissionDenied, "вы не авторизированы 3")
+			return "", status.Error(codes.PermissionDenied, "вы не авторизированы 3")
 		}
 	}
 	var token string
@@ -93,35 +114,42 @@ func (s *postgresStorage) CheckToken(ctx context.Context) (context.Context, erro
 		token = strings.Split(v, "=")[1]
 	}
 	if len(token) == 0 {
-		return nil, status.Error(codes.PermissionDenied, "вы не авторизированы")
+		return "", status.Error(codes.PermissionDenied, "вы не авторизированы 4")
 	}
 	tokenClaim, err := jwt.ParseWithClaims(token, &repository.Claim{}, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodRSAPSS); !ok {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("неверный алгоритм подписи %v", t.Header["alg"])
 		}
-		return signingKeyRSA, nil
+		return []byte(s.secretKey), nil
 	})
 	if err != nil {
-		return nil, status.Error(codes.PermissionDenied, "вы не авторизированы")
+		return "", status.Error(codes.PermissionDenied, "вы не авторизированы 5 "+err.Error())
 	}
 	claim, ok := tokenClaim.Claims.(*repository.Claim)
 	if !ok || !tokenClaim.Valid {
-		return nil, status.Error(codes.PermissionDenied, "вы не авторизированы")
+		return "", status.Error(codes.PermissionDenied, "вы не авторизированы 6")
 	}
 	c, err := s.GetUserBySession(ctx, claim)
 	if err != nil {
-		return nil, status.Error(codes.PermissionDenied, "вы не авторизированы")
+		switch err {
+		case pgx.ErrNoRows, repository.ErrSessionExpired:
+			return "", nil
+		default:
+			return "", status.Error(codes.PermissionDenied, "вы не авторизированы 7 "+err.Error())
+		}
 	}
-	ctx = context.WithValue(ctx, internal.UserID, c.ID)
-	return ctx, nil
+	switch method {
+	case "/gopher.market.v1.Public/UsersRegister":
+		return "", status.Error(codes.PermissionDenied, "вы уже зарегистрированы")
+	case "/gopher.market.v1.Public/UsersLogin":
+		return "", status.Error(codes.PermissionDenied, "вы уже авторизированы")
+	default:
+		return c.ID, nil
+	}
 }
 
-//go:embed signing_key
-var signingKey []byte
-var signingKeyRSA *rsa.PrivateKey
-
-func (s *postgresStorage) SigningKey() interface{} {
-	return signingKeyRSA
+func (s *postgresStorage) SigningKey() string {
+	return s.secretKey
 }
 func (s *postgresStorage) CreateUser(ctx context.Context, login string, password string) (*repository.Claim, error) {
 	hashedPassword, err := HashPassword(password)
@@ -156,7 +184,7 @@ func (s *postgresStorage) CreateUser(ctx context.Context, login string, password
 	if err != nil {
 		return nil, err
 	}
-	// claim. = id
+	claim.ID = fmt.Sprint(id)
 	return claim, nil
 }
 
@@ -166,14 +194,24 @@ func (s *postgresStorage) GetUser(ctx context.Context, login string, password st
 
 func (s *postgresStorage) GetUserBySession(ctx context.Context, claim *repository.Claim) (*repository.Claim, error) {
 	var userID int64
-	err := s.db.QueryRow(ctx, `SELECT user_id FROM sessions WHERE id = $1`, claim.ID).Scan(&userID)
+	s.loger.Info(claim.ID)
+	s.loger.Infof("%+v", claim)
+	searchID, err := strconv.Atoi(claim.ID)
 	if err != nil {
 		return nil, err
 	}
-	if claim.ExpiresAt.After(time.Now()) {
-		_, err := s.db.Exec(ctx, `DELETE FROM sessions WHERE id = $1`, claim.ID)
+	s.loger.Info(searchID)
+	err = s.GetConn(ctx).QueryRow(ctx, `SELECT user_id FROM sessions WHERE id = $1`, searchID).Scan(&userID)
+	if err != nil {
 		return nil, err
 	}
+	s.loger.Info(searchID)
+	s.loger.Info(claim.ExpiresAt)
+	if claim.ExpiresAt != nil && claim.ExpiresAt.Before(time.Now()) {
+		_, err = s.GetConn(ctx).Exec(ctx, `DELETE FROM sessions WHERE id = $1`, searchID)
+		return nil, fmt.Errorf("session expired")
+	}
+	s.loger.Info(searchID)
 	return claim, nil
 }
 
@@ -262,90 +300,3 @@ func (s *postgresStorage) Ping(ctx context.Context) error {
 	}
 
 }
-
-// // GetCurrencies ...
-// func (s *postgresStorage) GetCurrencies(ctx context.Context) ([]*v1.Currency, error) {
-// 	var data []*v1.Currency
-// 	// rows, err := s.GetConn(ctx).Query(ctx, `select shortname, name, icon from currencies`)
-// 	rows, err := s.GetConn(ctx).Query(ctx, `select shortname, name, icon, type::jsonb from currencies`)
-// 	if err != nil {
-// 		s.loger.Debug(err)
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var short string
-// 		var name string
-// 		var icon string
-// 		var t v1.Crypto
-// 		err = rows.Scan(&short, &name, &icon, &t)
-// 		s.loger.Debug(t)
-// 		if err != nil {
-// 			s.loger.Debug(err)
-// 			return nil, err
-// 		}
-// 		// switch v := t.(type) {
-// 		// case *proto.Currency_Card:
-// 		// 	s.loger.Info("Card ", name)
-// 		// case *proto.Currency_Crypto:
-// 		// 	s.loger.Info("Crypto ", name)
-// 		// case **proto.Currency_Mobile:
-// 		// 	s.loger.Info("Mobile ", name)
-// 		// default:
-
-// 		// 	return nil, errors.New(fmt.Sprint("unknown type ", v))
-// 		// 	// fmt.Printf("I don't know about type %T!\n", v)
-// 		// }
-// 		cur := &v1.Currency{
-// 			ShortName: short,
-// 			Name:      name,
-// 			Icon:      icon,
-// 			// Type: &t.(proto.),
-// 		}
-// 		s.loger.Debug(short)
-// 		data = append(data, cur)
-// 	}
-// 	if rows.Err() != nil {
-// 		return nil, err
-// 	}
-// 	return data, nil
-// }
-
-// // CreateCurrency ...
-// func (s *postgresStorage) CreateCurrency(ctx context.Context, c *v1.Currency) error {
-// 	_, err := s.GetConn(ctx).Exec(ctx, `INSERT INTO currencies (shortname, name, icon, type) VALUES($1, $2, $3, $4)`, c.ShortName, c.Name, c.Icon, c.GetType())
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// // CreateOrder ...
-// func (s *postgresStorage) CreateOrder(_ context.Context, _ *v1.Order) (*v1.Order, error) {
-// 	panic("not implemented") // TODO: Implement
-// }
-
-// // UpdateOrderStatus ...
-// func (s *postgresStorage) UpdateOrderStatus(ctx context.Context, orderID string, status *v1.Status) error {
-// 	panic("not implemented") // TODO: Implement
-// }
-
-// // GetOrder ...
-// func (s *postgresStorage) GetOrder(ctx context.Context, orderID string) (*v1.Order, error) {
-// 	panic("not implemented") // TODO: Implement
-// }
-
-// // GetOrders ...
-// func (s *postgresStorage) GetOrders(_ context.Context) ([]*v1.Order, error) {
-// 	panic("not implemented") // TODO: Implement
-// }
-
-// // GetMessages ...
-// func (s *postgresStorage) GetMessages(_ context.Context) ([]*v1.Message, error) {
-// 	panic("not implemented") // TODO: Implement
-// }
-
-// // CreateMessage ...
-// func (s *postgresStorage) CreateMessage(_ context.Context, _ *v1.Message) error {
-// 	panic("not implemented") // TODO: Implement
-// }

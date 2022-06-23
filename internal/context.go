@@ -8,7 +8,7 @@ type contextKey string
 const PathKey contextKey = "path"
 
 // UserID .
-const UserID contextKey = "user_id"
+type ContextKeyUserID struct{}
 
 // GetPath .
 func GetPath(ctx context.Context) string {
