@@ -41,7 +41,7 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 			MaxIdleConnsPerHost: 10,
 		},
 	}
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(1 * time.Second)
 	for {
 		select {
 		case <-ticker.C:
