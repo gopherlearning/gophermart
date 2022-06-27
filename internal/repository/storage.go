@@ -21,7 +21,8 @@ type Storage interface {
 	CreateOrder(ctx context.Context, id int64) error
 	GetBalance(ctx context.Context) (*v1.Balance, error)
 	GetOrders(ctx context.Context) ([]*v1.Order, error)
-	Withdrawn(ctx context.Context, id string, sum float64)
+	CreateWithdraw(ctx context.Context, id string, sum float64) error
+	GetWithdrawals(ctx context.Context) ([]*v1.WithdrawRequest, error)
 	UnaryCheckToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
 	StreamCheckToken(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error
 	SigningKey() string

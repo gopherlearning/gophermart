@@ -12,6 +12,9 @@ var (
 	ErrOrderAlreadyUploaded      = errors.New("номер заказа уже был загружен этим пользователем")
 	ErrOrderAlreadyUploadedOther = errors.New("номер заказа уже был загружен другим пользователем")
 	ErrNoContent                 = errors.New("нет данных для ответа")
+	ErrNoWithdrawals             = errors.New("нет ни одного списания")
+	ErrLowBalance                = errors.New("на счету недостаточно средств")
+	ErrWrongOrderNumber          = errors.New("неверный номер заказа")
 )
 
 // not errors

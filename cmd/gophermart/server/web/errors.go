@@ -153,6 +153,8 @@ func HTTPStatusFromCode(code codes.Code) int {
 		return http.StatusNoContent
 	case codes.Code(http.StatusUnprocessableEntity):
 		return http.StatusUnprocessableEntity
+	case codes.Code(http.StatusPaymentRequired):
+		return http.StatusPaymentRequired
 	case codes.Code(http.StatusAccepted):
 		return http.StatusAccepted
 		// case codes.Code(http.Status):

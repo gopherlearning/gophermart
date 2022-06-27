@@ -40,30 +40,45 @@ func (s *privateServer) OrdersAdd(ctx context.Context, req *v1.OrderRequest) (*v
 
 func (s *privateServer) OrdersGet(ctx context.Context, req *v1.Empty) (*v1.OrdersResponse, error) {
 	orders, err := s.db.GetOrders(ctx)
-	if err != nil {
-		switch {
-		case len(orders) == 0:
-			return nil, status.Error(codes.Code(http.StatusNoContent), repository.ErrNoContent.Error())
-		default:
-			return nil, status.Error(codes.Internal, repository.ErrInternalServer.Error())
-		}
+	switch {
+	case len(orders) == 0:
+		return nil, status.Error(codes.Code(http.StatusNoContent), repository.ErrNoContent.Error())
+	case err != nil:
+		return nil, status.Error(codes.Internal, repository.ErrInternalServer.Error())
 	}
 	return &v1.OrdersResponse{Orders: orders}, status.Error(codes.OK, "")
 }
 
 func (s *privateServer) GetBalance(ctx context.Context, _ *v1.Empty) (*v1.Balance, error) {
-	logrus.Info(ctx)
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+	balance, err := s.db.GetBalance(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, repository.ErrInternalServer.Error())
+	}
+	return balance, status.Error(codes.OK, "")
 	// return nil, nil
 }
 
 func (s *privateServer) BalanceWithdraw(ctx context.Context, req *v1.WithdrawRequest) (*v1.Empty, error) {
-	logrus.Info(ctx)
-	return nil, status.Error(codes.Unimplemented, "not implemented")
-	// return nil, nil
+	err := s.db.CreateWithdraw(ctx, req.Order, req.Sum)
+	switch {
+	case errors.Is(err, repository.ErrWrongOrderNumber):
+		return nil, status.Error(codes.Code(http.StatusUnprocessableEntity), repository.ErrWrongOrderNumber.Error())
+	case errors.Is(err, repository.ErrLowBalance):
+		return nil, status.Error(codes.Code(http.StatusPaymentRequired), repository.ErrLowBalance.Error())
+	}
+	if err != nil {
+		return nil, status.Error(codes.Internal, repository.ErrInternalServer.Error())
+	}
+	return &v1.Empty{}, status.Error(codes.OK, "")
 }
 
 func (s *privateServer) GetWithdrawals(ctx context.Context, _ *v1.Empty) (*v1.WithdrawsResponse, error) {
-	logrus.Info(ctx)
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+	withdrawals, err := s.db.GetWithdrawals(ctx)
+	switch {
+	case len(withdrawals) == 0:
+		return nil, status.Error(codes.Code(http.StatusNoContent), repository.ErrNoWithdrawals.Error())
+	case err != nil:
+		return nil, status.Error(codes.Internal, repository.ErrInternalServer.Error())
+	}
+	return &v1.WithdrawsResponse{Withdraws: withdrawals}, status.Error(codes.OK, "")
 }

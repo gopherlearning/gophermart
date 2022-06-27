@@ -128,64 +128,6 @@
         ]
       }
     },
-    "/api/user/balance/withdrawals": {
-      "get": {
-        "summary": "Получение информации о выводе средств",
-        "description": "Хендлер доступен только авторизованному пользователю. Факты выводов в выдаче должны быть отсортированы по времени вывода от самых старых к самым новым. Формат даты — RFC3339.",
-        "operationId": "Private_GetWithdrawals",
-        "responses": {
-          "200": {
-            "description": "успешная обработка запроса.",
-            "schema": {
-              "$ref": "#/definitions/v1WithdrawsResponse"
-            },
-            "examples": {
-              "application/json": [
-                {
-                  "order": "2377225624",
-                  "sum": 500,
-                  "processed_at": "2020-12-09T16:09:57+03:00"
-                }
-              ]
-            }
-          },
-          "204": {
-            "description": "нет ни одного списания.",
-            "schema": {}
-          },
-          "401": {
-            "description": "пользователь не авторизован.",
-            "schema": {}
-          },
-          "500": {
-            "description": "внутренняя ошибка сервера.",
-            "schema": {}
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "message",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "Private"
-        ],
-        "security": [
-          {
-            "authorization": []
-          }
-        ]
-      }
-    },
     "/api/user/login": {
       "post": {
         "summary": "Аутентификация пользователя",
@@ -403,6 +345,67 @@
           "Public"
         ]
       }
+    },
+    "/api/user/withdrawals": {
+      "get": {
+        "summary": "Получение информации о выводе средств",
+        "description": "Хендлер доступен только авторизованному пользователю. Факты выводов в выдаче должны быть отсортированы по времени вывода от самых старых к самым новым. Формат даты — RFC3339.",
+        "operationId": "Private_GetWithdrawals",
+        "responses": {
+          "200": {
+            "description": "успешная обработка запроса.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/v1WithdrawRequest"
+              }
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "order": "2377225624",
+                  "sum": 500,
+                  "processed_at": "2020-12-09T16:09:57+03:00"
+                }
+              ]
+            }
+          },
+          "204": {
+            "description": "нет ни одного списания",
+            "schema": {}
+          },
+          "401": {
+            "description": "пользователь не авторизован.",
+            "schema": {}
+          },
+          "500": {
+            "description": "внутренняя ошибка сервера.",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "message",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Private"
+        ],
+        "security": [
+          {
+            "authorization": []
+          }
+        ]
+      }
     }
   },
   "definitions": {
@@ -462,8 +465,8 @@
           "format": "double"
         },
         "withdrawn": {
-          "type": "string",
-          "format": "int64"
+          "type": "number",
+          "format": "double"
         }
       }
     },
@@ -545,8 +548,8 @@
           "type": "string"
         },
         "sum": {
-          "type": "string",
-          "format": "int64"
+          "type": "number",
+          "format": "double"
         },
         "processedAt": {
           "type": "string"

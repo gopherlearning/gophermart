@@ -441,7 +441,7 @@ func RegisterPrivateHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Private/GetWithdrawals", runtime.WithHTTPPathPattern("/api/user/balance/withdrawals"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/gopher.market.v1.Private/GetWithdrawals", runtime.WithHTTPPathPattern("/api/user/withdrawals"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -454,7 +454,7 @@ func RegisterPrivateHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Private_GetWithdrawals_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Private_GetWithdrawals_0(ctx, mux, outboundMarshaler, w, req, response_Private_GetWithdrawals_0{resp}, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -683,7 +683,7 @@ func RegisterPrivateHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Private/GetWithdrawals", runtime.WithHTTPPathPattern("/api/user/balance/withdrawals"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/gopher.market.v1.Private/GetWithdrawals", runtime.WithHTTPPathPattern("/api/user/withdrawals"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -695,7 +695,7 @@ func RegisterPrivateHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 			return
 		}
 
-		forward_Private_GetWithdrawals_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Private_GetWithdrawals_0(ctx, mux, outboundMarshaler, w, req, response_Private_GetWithdrawals_0{resp}, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -711,6 +711,15 @@ func (m response_Private_OrdersGet_0) XXX_ResponseBody() interface{} {
 	return response.Orders
 }
 
+type response_Private_GetWithdrawals_0 struct {
+	proto.Message
+}
+
+func (m response_Private_GetWithdrawals_0) XXX_ResponseBody() interface{} {
+	response := m.Message.(*WithdrawsResponse)
+	return response.Withdraws
+}
+
 var (
 	pattern_Private_OrdersAdd_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "orders"}, ""))
 
@@ -720,7 +729,7 @@ var (
 
 	pattern_Private_BalanceWithdraw_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "user", "balance", "withdraw"}, ""))
 
-	pattern_Private_GetWithdrawals_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "user", "balance", "withdrawals"}, ""))
+	pattern_Private_GetWithdrawals_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "user", "withdrawals"}, ""))
 )
 
 var (

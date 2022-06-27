@@ -62,11 +62,11 @@ message Order {
 
 message Balance {
   double  current     = 1;
-  int64   withdrawn     = 2;
+  double   withdrawn     = 2;
 }
 message WithdrawRequest {
   string order = 1;
-  int64 sum = 2;
+  double sum = 2;
   string processed_at = 3;
 }
 
@@ -326,7 +326,8 @@ service Private {
   }
   rpc GetWithdrawals(Empty) returns (WithdrawsResponse) {
     option (google.api.http) = {
-      get: "/api/user/balance/withdrawals"
+      get: "/api/user/withdrawals"
+      response_body: "withdraws"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Получение информации о выводе средств"
@@ -350,7 +351,7 @@ service Private {
       responses: {
         key: "204"
         value: {
-          description: "нет ни одного списания.";
+          description: "нет ни одного списания";
         }
       }
       responses: {

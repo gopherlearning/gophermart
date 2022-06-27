@@ -60,10 +60,12 @@ func (m *MockStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 	panic("not implemented") // TODO: Implement
 }
 
-func (m *MockStorage) Withdrawn(ctx context.Context, id string, sum float64) {
+func (m *MockStorage) CreateWithdraw(ctx context.Context, id string, sum float64) error {
 	panic("not implemented") // TODO: Implement
 }
-
+func (m *MockStorage) GetWithdrawals(ctx context.Context) ([]*v1.WithdrawRequest, error) {
+	panic("not implemented") // TODO: Implement
+}
 func (m *MockStorage) CreateUser(ctx context.Context, login string, password string) (*Claim, error) {
 	if _, ok := m.Users[login]; ok {
 		return nil, ErrLoginConflict

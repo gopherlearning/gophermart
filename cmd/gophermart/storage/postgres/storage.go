@@ -243,11 +243,9 @@ func (s *postgresStorage) GetUserBySession(ctx context.Context, claim *repositor
 }
 
 func (s *postgresStorage) CreateOrder(ctx context.Context, id int64) error {
-	s.loger.Info(ctx)
 	if !luhn.Valid(id) {
 		return repository.ErrWrongFormat
 	}
-	s.loger.Info(ctx)
 	tx, err := s.GetConn(ctx).BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -287,11 +285,14 @@ func (s *postgresStorage) GetBalance(ctx context.Context) (*v1.Balance, error) {
 	if userID == nil {
 		return nil, repository.ErrNotAuthorized
 	}
-	err := s.GetConn(ctx).QueryRow(ctx, `SELECT user_id FROM sessions WHERE id = $1`).Scan(&userID)
+	var current float64
+	var withdrawn float64
+	err := s.GetConn(ctx).QueryRow(ctx, `SELECT COALESCE(SUM( accrual ),0)-(SELECT COALESCE(SUM( sum ),0) FROM withdraws WHERE user_id = $1),(SELECT COALESCE(SUM( sum ),0) FROM withdraws WHERE user_id = $1) FROM orders WHERE user_id = $1`, userID).Scan(&current, &withdrawn)
 	if err != nil {
+		s.loger.Debug(err)
 		return nil, err
 	}
-	panic("not implemented")
+	return &v1.Balance{Current: current, Withdrawn: withdrawn}, nil
 }
 
 func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
@@ -335,8 +336,73 @@ func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 	return orders, nil
 }
 
-func (s *postgresStorage) Withdrawn(ctx context.Context, id string, sum float64) {
-	panic("not implemented") // TODO: Implement
+func (s *postgresStorage) CreateWithdraw(ctx context.Context, id string, sum float64) error {
+	idd, err := strconv.ParseInt(id, 10, 0)
+	if err != nil {
+		return err
+	}
+	if !luhn.Valid(idd) {
+		return repository.ErrWrongOrderNumber
+	}
+	tx, err := s.GetConn(ctx).BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	userID := ctx.Value(internal.ContextKeyUserID{})
+	if userID == nil {
+		return repository.ErrNotAuthorized
+	}
+	var balance float64
+	err = tx.QueryRow(ctx, `SELECT COALESCE(SUM( accrual ),0)-(SELECT COALESCE(SUM( sum ),0) FROM withdraws WHERE user_id = $1) FROM orders WHERE user_id = $1`, userID).Scan(&balance)
+	if err != nil {
+		s.loger.Debug(err)
+		return err
+	}
+	if (balance - sum) < 0 {
+		return repository.ErrLowBalance
+	}
+	_, err = tx.Exec(ctx, `INSERT INTO withdraws (id, sum, user_id, created_at) VALUES($1, $2, $3, $4)`, id, sum, userID, time.Now())
+	if err != nil {
+		s.loger.Debug(err)
+		return err
+	}
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (s *postgresStorage) GetWithdrawals(ctx context.Context) ([]*v1.WithdrawRequest, error) {
+	userID := ctx.Value(internal.ContextKeyUserID{})
+	if userID == nil {
+		return nil, repository.ErrNotAuthorized
+	}
+	rows, err := s.GetConn(ctx).Query(ctx, `SELECT id, sum, created_at FROM withdraws WHERE user_id = $1`, userID)
+	if err != nil {
+		s.loger.Debug(err)
+		return nil, err
+	}
+	withdrawns := make([]*v1.WithdrawRequest, 0)
+	for rows.Next() {
+		var id int64
+		var sum float64
+		var created_at time.Time
+		err = rows.Scan(&id, &sum, &created_at)
+		if err != nil {
+			s.loger.Error(err)
+			break
+		}
+		withdrawns = append(withdrawns, &v1.WithdrawRequest{
+			Order:       fmt.Sprint(id),
+			Sum:         sum,
+			ProcessedAt: created_at.Format("2006-01-02T15:04:05-07:00"),
+		})
+	}
+	if rows.Err() != nil {
+		s.loger.Error(err)
+	}
+	rows.Close()
+	return withdrawns, nil
 }
 
 // Close ...
