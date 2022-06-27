@@ -314,9 +314,9 @@ func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 	for rows.Next() {
 		var id int64
 		var accrual float64
-		var created_at time.Time
+		var createdAt time.Time
 		var status v1.Order_Status
-		err = rows.Scan(&id, &accrual, &created_at, &status)
+		err = rows.Scan(&id, &accrual, &createdAt, &status)
 		if err != nil {
 			s.loger.Error(err)
 			break
@@ -324,10 +324,10 @@ func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 		orders = append(orders, &v1.Order{
 			Number:     fmt.Sprint(id),
 			Status:     status,
-			UploadedAt: created_at.Format("2006-01-02T15:04:05-07:00"),
+			UploadedAt: createdAt.Format("2006-01-02T15:04:05-07:00"),
 			Accrual:    accrual,
 		})
-		s.loger.Info(orders)
+		s.loger.Infof("%+v", orders)
 		// ordersMap[v1.Order_Status(status)] = orders
 	}
 	if rows.Err() != nil {
@@ -387,8 +387,8 @@ func (s *postgresStorage) GetWithdrawals(ctx context.Context) ([]*v1.WithdrawReq
 	for rows.Next() {
 		var id int64
 		var sum float64
-		var created_at time.Time
-		err = rows.Scan(&id, &sum, &created_at)
+		var createdAt time.Time
+		err = rows.Scan(&id, &sum, &createdAt)
 		if err != nil {
 			s.loger.Error(err)
 			break
@@ -396,7 +396,7 @@ func (s *postgresStorage) GetWithdrawals(ctx context.Context) ([]*v1.WithdrawReq
 		withdrawns = append(withdrawns, &v1.WithdrawRequest{
 			Order:       fmt.Sprint(id),
 			Sum:         sum,
-			ProcessedAt: created_at.Format("2006-01-02T15:04:05-07:00"),
+			ProcessedAt: createdAt.Format("2006-01-02T15:04:05-07:00"),
 		})
 	}
 	if rows.Err() != nil {
@@ -448,7 +448,7 @@ func (s *postgresStorage) GetConn(ctx context.Context) *pgxpool.Pool {
 
 			s.db, err = s.reconnect(ctx)
 			if err == nil {
-				ticker = time.NewTicker(3 * time.Second)
+				// ticker = time.NewTicker(3 * time.Second)
 				return s.db
 			}
 

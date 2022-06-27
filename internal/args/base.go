@@ -42,7 +42,7 @@ var (
 
 // RegisterMetric .
 func RegisterMetric(v prometheus.Collector) {
-	metrics = append(metrics)
+	metrics = append(metrics, v)
 	prometheus.Register(v)
 }
 
@@ -205,10 +205,8 @@ func startMetrics(ctx context.Context, wg *sync.WaitGroup, metrics []prometheus.
 	defer onStop()
 	isHealthy.Store(false)
 	isReady.Store(false)
-	if metrics != nil {
-		for _, v := range metrics {
-			prometheus.Register(v)
-		}
+	for _, v := range metrics {
+		prometheus.Register(v)
 	}
 	handler := http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 		if req.Method == "GET" {

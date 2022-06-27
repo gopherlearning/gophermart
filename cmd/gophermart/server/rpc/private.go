@@ -40,11 +40,11 @@ func (s *privateServer) OrdersAdd(ctx context.Context, req *v1.OrderRequest) (*v
 
 func (s *privateServer) OrdersGet(ctx context.Context, req *v1.Empty) (*v1.OrdersResponse, error) {
 	orders, err := s.db.GetOrders(ctx)
-	switch {
-	case len(orders) == 0:
-		return nil, status.Error(codes.Code(http.StatusNoContent), repository.ErrNoContent.Error())
-	case err != nil:
+	if err != nil {
 		return nil, status.Error(codes.Internal, repository.ErrInternalServer.Error())
+	}
+	if len(orders) == 0 {
+		return nil, status.Error(codes.Code(http.StatusNoContent), repository.ErrNoContent.Error())
 	}
 	return &v1.OrdersResponse{Orders: orders}, status.Error(codes.OK, "")
 }
