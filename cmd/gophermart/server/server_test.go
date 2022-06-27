@@ -184,7 +184,7 @@ func TestSpec(t *testing.T) {
 				buf := bytes.NewBufferString(`{
 								"order": "65627777212855",
 									"sum": 700.98
-							}`)
+								}`)
 				req, err := http.NewRequest(http.MethodPost, webURL+"/api/user/balance/withdraw", buf)
 				So(err, ShouldBeNil)
 				req.Header.Add("Accept", "application/json")

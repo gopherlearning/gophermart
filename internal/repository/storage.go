@@ -19,7 +19,7 @@ type Storage interface {
 	GetUser(ctx context.Context, login, password string) (*Claim, error)
 	GetUserBySession(context.Context, *Claim) (*Claim, error)
 	CreateOrder(ctx context.Context, id int64) error
-	GetOrder(ctx context.Context, id int64) (*v1.Order, error)
+	GetBalance(ctx context.Context) (*v1.Balance, error)
 	GetOrders(ctx context.Context) ([]*v1.Order, error)
 	Withdrawn(ctx context.Context, id string, sum float64)
 	UnaryCheckToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)

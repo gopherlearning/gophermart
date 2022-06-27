@@ -282,8 +282,16 @@ func (s *postgresStorage) CreateOrder(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (s *postgresStorage) GetOrder(ctx context.Context, id int64) (*v1.Order, error) {
-	panic("not implemented") // TODO: Implement
+func (s *postgresStorage) GetBalance(ctx context.Context) (*v1.Balance, error) {
+	userID := ctx.Value(internal.ContextKeyUserID{})
+	if userID == nil {
+		return nil, repository.ErrNotAuthorized
+	}
+	err := s.GetConn(ctx).QueryRow(ctx, `SELECT user_id FROM sessions WHERE id = $1`).Scan(&userID)
+	if err != nil {
+		return nil, err
+	}
+	panic("not implemented")
 }
 
 func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {

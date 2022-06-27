@@ -52,7 +52,7 @@ func (m *MockStorage) CreateOrder(ctx context.Context, id int64) error {
 	panic("not implemented") // TODO: Implement
 }
 
-func (m *MockStorage) GetOrder(ctx context.Context, id int64) (*v1.Order, error) {
+func (m *MockStorage) GetBalance(ctx context.Context) (*v1.Balance, error) {
 	panic("not implemented") // TODO: Implement
 }
 

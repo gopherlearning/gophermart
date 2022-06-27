@@ -26,23 +26,8 @@ CREATE TABLE order_statuses (
 );
 
 CREATE TABLE withdraws (  
-  id BIGSERIAL UNIQUE PRIMARY KEY,
+  id BIGINT UNIQUE PRIMARY KEY,
   sum REAL NOT NULL,
-  order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 );
-
-
-
-SELECT o.id, o.accrual, o.created_at, s.status
-FROM orders AS o 
-JOIN order_statuses AS s 
-  ON o.id = s.order_id 
-  AND s.created_at = (select max(created_at) from order_statuses where order_id=o.id);
-
-select o.id, o.accrual, o.created_at, s.status
-from documents
-left join updates
-  on updates.document_id=documents.id
-  and updates.date=(select max(date) from updates where document_id=documents.id)
-where documents.id=?;
