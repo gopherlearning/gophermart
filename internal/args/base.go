@@ -121,7 +121,7 @@ func NewApp(name, desc string, cfg interface{}, cli CLI) (
 	}
 	Loger = logrus.StandardLogger()
 
-	loger.Debug(ctx)
+	loger.Debug(ctx.Args)
 	appNameMetric.WithLabelValues(os.Getenv("APP")).Set(1)
 	terminate := make(chan os.Signal)
 	wg = &sync.WaitGroup{}
@@ -137,8 +137,8 @@ func NewApp(name, desc string, cfg interface{}, cli CLI) (
 		}()
 	}()
 
-	wg.Add(1)
-	go startMetrics(AddJob("metrics"), wg, metrics)
+	// wg.Add(1)
+	// go startMetrics(AddJob("metrics"), wg, metrics)
 	signal.Notify(terminate, os.Interrupt, syscall.SIGTERM)
 	if cfg != nil {
 		if err := readFromFile(cli.GetConfig(), cfg); err != nil {

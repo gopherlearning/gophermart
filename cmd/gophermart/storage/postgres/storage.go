@@ -316,7 +316,6 @@ func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 		var accrual float64
 		var created_at time.Time
 		var status v1.Order_Status
-		s.loger.Info(rows.RawValues())
 		err = rows.Scan(&id, &accrual, &created_at, &status)
 		if err != nil {
 			s.loger.Error(err)
@@ -328,6 +327,7 @@ func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 			UploadedAt: created_at.Format("2006-01-02T15:04:05-07:00"),
 			Accrual:    accrual,
 		})
+		s.loger.Info(orders)
 		// ordersMap[v1.Order_Status(status)] = orders
 	}
 	if rows.Err() != nil {

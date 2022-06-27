@@ -14,13 +14,6 @@ import (
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
 )
 
-func (s *postgresStorage) AccrualAdd(string) error {
-	panic("not implemented") // TODO: Implement
-}
-func (s *postgresStorage) AccrualGet(string) v1.Order_Status {
-	panic("not implemented") // TODO: Implement
-}
-
 type accrualOrder struct {
 	Order string `json:"order"`
 	Goods []struct {
