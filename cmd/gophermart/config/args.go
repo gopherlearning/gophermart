@@ -7,7 +7,7 @@ import (
 
 type args struct {
 	Config               string `help:"Config" default:"config.yaml"`
-	Verbose              bool   `short:"v" help:"режим разработчика"`
+	Verbose              bool   `short:"v" help:"режим разработчика" defaul:"true"`
 	GRPCServerAddr       string `short:"g" help:"адрес GRPC сервера" env:"RPC_ADDRESS" default:"127.0.0.1:8091"`
 	SigningKey           string `help:"ключ для подписи JWT токенов" env:"SIGNING_KEY" default:"superSECRETsignKEY"`
 	WebServerAddr        string `short:"a" help:"адрес WEB сервера" env:"RUN_ADDRESS" default:"127.0.0.1:8090"`                                   // ТЗ
