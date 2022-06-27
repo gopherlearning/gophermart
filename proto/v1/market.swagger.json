@@ -55,6 +55,14 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "message",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "Private"
         ],
@@ -160,6 +168,14 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "message",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "Private"
         ],
@@ -270,6 +286,14 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "message",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "Private"
         ],
@@ -444,7 +468,12 @@
       }
     },
     "v1Empty": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
     },
     "v1Order": {
       "type": "object",
@@ -456,8 +485,7 @@
       },
       "properties": {
         "number": {
-          "type": "string",
-          "format": "int64"
+          "type": "string"
         },
         "status": {
           "$ref": "#/definitions/v1OrderStatus"

@@ -54,7 +54,7 @@ message Order {
     PROCESSING  = 2;
     PROCESSED   = 3;
   }
-  int64  number     = 1;
+  string  number     = 1;
   Status status     = 2;
   double accrual    = 3;
   string uploaded_at = 4;
@@ -74,7 +74,9 @@ message WithdrawsResponse {
   repeated WithdrawRequest withdraws = 1;
 }
 
-message Empty {}
+message Empty {
+  string message = 1;
+}
 
 service Public {
   rpc UsersRegister(AuthRequest) returns (Empty) {

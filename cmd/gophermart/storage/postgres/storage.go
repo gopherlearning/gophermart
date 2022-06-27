@@ -245,7 +245,7 @@ func (s *postgresStorage) GetUserBySession(ctx context.Context, claim *repositor
 func (s *postgresStorage) CreateOrder(ctx context.Context, id int64) error {
 	s.loger.Info(ctx)
 	if !luhn.Valid(id) {
-		return fmt.Errorf("неправильный номер заказа")
+		return repository.ErrWrongFormat
 	}
 	s.loger.Info(ctx)
 	tx, err := s.GetConn(ctx).BeginTx(ctx, pgx.TxOptions{})
@@ -254,9 +254,17 @@ func (s *postgresStorage) CreateOrder(ctx context.Context, id int64) error {
 	}
 	userID := ctx.Value(internal.ContextKeyUserID{})
 	if userID == nil {
-		return fmt.Errorf("вы не авторизированы")
+		return repository.ErrNotAuthorized
 	}
-	s.loger.Debug(userID)
+	var dbUserID int
+	err = tx.QueryRow(ctx, `SELECT user_id FROM orders WHERE id = $1`, id).Scan(&dbUserID)
+
+	if err == nil {
+		if fmt.Sprint(dbUserID) == userID.(string) {
+			return repository.ErrOrderAlreadyUploaded
+		}
+		return repository.ErrOrderAlreadyUploadedOther
+	}
 	_, err = tx.Exec(ctx, `INSERT INTO orders (id, user_id, created_at) VALUES($1, $2, $3)`, id, userID, time.Now())
 	if err != nil {
 		s.loger.Debug(err)
@@ -279,7 +287,44 @@ func (s *postgresStorage) GetOrder(ctx context.Context, id int64) (*v1.Order, er
 }
 
 func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
-	panic("not implemented") // TODO: Implement
+	userID := ctx.Value(internal.ContextKeyUserID{})
+	if userID == nil {
+		return nil, repository.ErrNotAuthorized
+	}
+	rows, err := s.GetConn(ctx).Query(ctx, `SELECT o.id, o.accrual, o.created_at, s.status
+	FROM orders AS o 
+	JOIN order_statuses AS s 
+		ON o.id = s.order_id 
+		AND s.created_at = (select max(created_at) from order_statuses where order_id=o.id)
+	WHERE o.user_id = $1`, userID)
+	if err != nil {
+		s.loger.Debug(err)
+		return nil, err
+	}
+	orders := make([]*v1.Order, 0)
+	for rows.Next() {
+		var id int64
+		var accrual float64
+		var created_at time.Time
+		var status v1.Order_Status
+		err = rows.Scan(&id, &accrual, &created_at, &status)
+		if err != nil {
+			s.loger.Error(err)
+			break
+		}
+		orders = append(orders, &v1.Order{
+			Number:     fmt.Sprint(id),
+			Status:     status,
+			UploadedAt: created_at.Format("2006-01-02T15:04:05-07:00"),
+			Accrual:    accrual,
+		})
+		// ordersMap[v1.Order_Status(status)] = orders
+	}
+	if rows.Err() != nil {
+		s.loger.Error(err)
+	}
+	rows.Close()
+	return orders, nil
 }
 
 func (s *postgresStorage) Withdrawn(ctx context.Context, id string, sum float64) {

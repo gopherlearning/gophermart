@@ -48,7 +48,7 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 			MaxIdleConnsPerHost: 10,
 		},
 	}
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	for {
 		select {
 		case <-ticker.C:
@@ -128,6 +128,7 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 								s.loger.Error(err)
 								return
 							}
+							s.loger.Debugf("%s", string(obytes))
 							err = json.Unmarshal(obytes, &o)
 							if err != nil {
 								s.loger.Error(err)
@@ -142,6 +143,13 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 							if err != nil {
 								s.loger.Error(err)
 								return
+							}
+							if o.Accrual != 0 {
+								_, err = s.GetConn(ctx).Exec(ctx, `UPDATE orders SET accrual = $1 WHERE id = $2`, o.Accrual, order)
+								if err != nil {
+									s.loger.Error(err)
+									return
+								}
 							}
 						}(order)
 					}
