@@ -300,7 +300,7 @@ func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 	if userID == nil {
 		return nil, repository.ErrNotAuthorized
 	}
-	rows, err := s.GetConn(ctx).Query(ctx, `SELECT o.id, o.accrual, o.created_at, s.status
+	rows, err := s.GetConn(ctx).Query(ctx, `SELECT o.id, COALESCE(o.accrual,0), o.created_at, s.status
 	FROM orders AS o 
 	JOIN order_statuses AS s 
 		ON o.id = s.order_id 
@@ -316,6 +316,7 @@ func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 		var accrual float64
 		var created_at time.Time
 		var status v1.Order_Status
+		s.loger.Info(rows.RawValues())
 		err = rows.Scan(&id, &accrual, &created_at, &status)
 		if err != nil {
 			s.loger.Error(err)
