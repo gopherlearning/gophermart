@@ -244,7 +244,7 @@ func (s *postgresStorage) GetUserBySession(ctx context.Context, claim *repositor
 
 func (s *postgresStorage) CreateOrder(ctx context.Context, id int64) error {
 	if !luhn.Valid(id) {
-		return repository.ErrWrongFormat
+		return repository.ErrWrongOrderNumber
 	}
 	tx, err := s.GetConn(ctx).BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -277,6 +277,7 @@ func (s *postgresStorage) CreateOrder(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
+	s.loger.Infof("%+v", id)
 	return nil
 }
 
@@ -327,13 +328,13 @@ func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 			UploadedAt: createdAt.Format("2006-01-02T15:04:05-07:00"),
 			Accrual:    accrual,
 		})
-		s.loger.Infof("%+v", orders)
 		// ordersMap[v1.Order_Status(status)] = orders
 	}
 	if rows.Err() != nil {
 		s.loger.Error(err)
 	}
 	rows.Close()
+	s.loger.Infof("%+v", orders)
 	return orders, nil
 }
 

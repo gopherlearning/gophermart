@@ -30,8 +30,8 @@ func (s *privateServer) OrdersAdd(ctx context.Context, req *v1.OrderRequest) (*v
 			return &v1.Empty{}, status.Error(codes.Aborted, repository.ErrOrderAlreadyUploadedOther.Error())
 		case errors.Is(err, repository.ErrOrderAlreadyUploaded):
 			return &v1.Empty{Message: repository.ErrOrderAlreadyUploaded.Error()}, status.Error(codes.OK, "")
-		case errors.Is(err, repository.ErrWrongFormat):
-			return &v1.Empty{}, status.Error(codes.InvalidArgument, repository.ErrWrongFormat.Error())
+		case errors.Is(err, repository.ErrWrongOrderNumber):
+			return &v1.Empty{}, status.Error(codes.Code(http.StatusUnprocessableEntity), repository.ErrWrongOrderNumber.Error())
 		}
 		return nil, err
 	}

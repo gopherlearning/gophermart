@@ -272,6 +272,10 @@
             "description": "номер заказа уже был загружен другим пользователем",
             "schema": {}
           },
+          "422": {
+            "description": "неверный формат номера заказа",
+            "schema": {}
+          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {

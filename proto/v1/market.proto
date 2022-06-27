@@ -185,6 +185,12 @@ service Private {
         }
       }
       responses: {
+        key: "422"
+        value: {
+          description: "неверный формат номера заказа";
+        }
+      }
+      responses: {
         key: "401"
         value: {
           description: "пользователь не аутентифицирован";
