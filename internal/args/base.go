@@ -122,6 +122,7 @@ func NewApp(name, desc string, cfg interface{}, cli CLI) (
 	Loger = logrus.StandardLogger()
 
 	loger.Debug(ctx.Args)
+	loger.Debug(os.Environ())
 	appNameMetric.WithLabelValues(os.Getenv("APP")).Set(1)
 	terminate := make(chan os.Signal)
 	wg = &sync.WaitGroup{}
