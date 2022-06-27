@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -69,38 +68,38 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 			wgLocal := &sync.WaitGroup{}
 			for status, orders := range ordersMap {
 				switch status {
-				case v1.Order_NEW:
-					for _, order := range orders {
-						wgLocal.Add(1)
-						go func(order string) {
-							defer wgLocal.Done()
-							o := accrualOrder{
-								Order: order,
-								Goods: goods,
-							}
-							obytes, err := json.Marshal(o)
-							if err != nil {
-								s.loger.Error(err)
-								return
-							}
-							obuf := bytes.NewReader(obytes)
-							resp, err := httpClient.Post(fmt.Sprintf("%s%s", url, "/api/orders"), "application/json", obuf)
-							if err != nil {
-								s.loger.Error(err)
-								return
-							}
-							defer resp.Body.Close()
-							// s.loger.Debug(resp.StatusCode)
-							if resp.StatusCode != http.StatusAccepted {
-								return
-							}
-							_, err = s.GetConn(ctx).Exec(ctx, `INSERT INTO order_statuses (status, order_id, created_at) VALUES($1, $2, $3)`, v1.Order_REGISTERED, order, time.Now())
-							if err != nil {
-								s.loger.Error(err)
-								return
-							}
-						}(order)
-					}
+				// case v1.Order_NEW:
+				// 	for _, order := range orders {
+				// 		wgLocal.Add(1)
+				// 		go func(order string) {
+				// 			defer wgLocal.Done()
+				// 			o := accrualOrder{
+				// 				Order: order,
+				// 				// Goods: goods,
+				// 			}
+				// 			obytes, err := json.Marshal(o)
+				// 			if err != nil {
+				// 				s.loger.Error(err)
+				// 				return
+				// 			}
+				// 			obuf := bytes.NewReader(obytes)
+				// 			resp, err := httpClient.Post(fmt.Sprintf("%s%s", url, "/api/orders"), "application/json", obuf)
+				// 			if err != nil {
+				// 				s.loger.Error(err)
+				// 				return
+				// 			}
+				// 			defer resp.Body.Close()
+				// 			// s.loger.Debug(resp.StatusCode)
+				// 			if resp.StatusCode != http.StatusAccepted {
+				// 				return
+				// 			}
+				// 			_, err = s.GetConn(ctx).Exec(ctx, `INSERT INTO order_statuses (status, order_id, created_at) VALUES($1, $2, $3)`, v1.Order_REGISTERED, order, time.Now())
+				// 			if err != nil {
+				// 				s.loger.Error(err)
+				// 				return
+				// 			}
+				// 		}(order)
+				// 	}
 				case v1.Order_PROCESSING, v1.Order_REGISTERED:
 					for _, order := range orders {
 						wgLocal.Add(1)
