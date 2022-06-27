@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gopherlearning/gophermart/cmd/gophermart/storage/postgres/migrations"
 	"github.com/gopherlearning/gophermart/internal"
+	"github.com/gopherlearning/gophermart/internal/luhn"
 	"github.com/gopherlearning/gophermart/internal/migrate"
 	"github.com/gopherlearning/gophermart/internal/repository"
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
@@ -67,9 +68,6 @@ func CheckPasswordHash(password, hash string) bool {
 // }
 
 func (s *postgresStorage) StreamCheckToken(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	s.loger.Info("авторизация ", ss.Context())
-	s.loger.Println("--> unary interceptor: ", info.FullMethod)
-	s.loger.Println("--> unary interceptor: ", info.FullMethod)
 	userID, err := s.checkToken(ss.Context(), info.FullMethod)
 	if err != nil {
 		return err
@@ -79,9 +77,6 @@ func (s *postgresStorage) StreamCheckToken(srv interface{}, ss grpc.ServerStream
 }
 
 func (s *postgresStorage) UnaryCheckToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	s.loger.Info("авторизация ", ctx)
-	s.loger.Println("--> unary interceptor: ", info.FullMethod)
-	s.loger.Println("--> unary interceptor: ", info.FullMethod)
 	userID, err := s.checkToken(ctx, info.FullMethod)
 	if err != nil {
 		return nil, err
@@ -93,9 +88,8 @@ func (s *postgresStorage) UnaryCheckToken(ctx context.Context, req interface{}, 
 func (s *postgresStorage) checkToken(ctx context.Context, method string) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return "", status.Error(codes.InvalidArgument, "отсутствуют необходимые заголовки 1.1")
+		return "", status.Error(codes.InvalidArgument, "отсутствуют необходимые заголовки")
 	}
-	s.loger.Info(md)
 	if len(md.Get("cookie")) == 0 {
 		switch method {
 		case
@@ -103,7 +97,7 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 			"/gopher.market.v1.Public/UsersLogin":
 			return "", nil
 		default:
-			return "", status.Error(codes.PermissionDenied, "вы не авторизированы 3")
+			return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error())
 		}
 	}
 	var token string
@@ -114,7 +108,7 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 		token = strings.Split(v, "=")[1]
 	}
 	if len(token) == 0 {
-		return "", status.Error(codes.PermissionDenied, "вы не авторизированы 4")
+		return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error())
 	}
 	tokenClaim, err := jwt.ParseWithClaims(token, &repository.Claim{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -123,11 +117,11 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 		return []byte(s.secretKey), nil
 	})
 	if err != nil {
-		return "", status.Error(codes.PermissionDenied, "вы не авторизированы 5 "+err.Error())
+		return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error()+err.Error())
 	}
 	claim, ok := tokenClaim.Claims.(*repository.Claim)
 	if !ok || !tokenClaim.Valid {
-		return "", status.Error(codes.PermissionDenied, "вы не авторизированы 6")
+		return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error())
 	}
 	c, err := s.GetUserBySession(ctx, claim)
 	if err != nil {
@@ -135,7 +129,7 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 		case pgx.ErrNoRows, repository.ErrSessionExpired:
 			return "", nil
 		default:
-			return "", status.Error(codes.PermissionDenied, "вы не авторизированы 7 "+err.Error())
+			return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error()+err.Error())
 		}
 	}
 	switch method {
@@ -144,7 +138,7 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 	case "/gopher.market.v1.Public/UsersLogin":
 		return "", status.Error(codes.PermissionDenied, "вы уже авторизированы")
 	default:
-		return c.ID, nil
+		return c.Subject, nil
 	}
 }
 
@@ -165,7 +159,6 @@ func (s *postgresStorage) CreateUser(ctx context.Context, login string, password
 	if err != nil {
 		return nil, err
 	}
-	s.loger.Debug(id)
 	claim := &repository.Claim{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   strconv.Itoa(int(id)),
@@ -179,7 +172,6 @@ func (s *postgresStorage) CreateUser(ctx context.Context, login string, password
 	if err != nil {
 		return nil, err
 	}
-	s.loger.Debug(id)
 	err = tx.Commit(ctx)
 	if err != nil {
 		return nil, err
@@ -189,41 +181,104 @@ func (s *postgresStorage) CreateUser(ctx context.Context, login string, password
 }
 
 func (s *postgresStorage) GetUser(ctx context.Context, login string, password string) (*repository.Claim, error) {
-	panic("not implemented") // TODO: Implement
+	var id int64
+	var hashedPassword string
+	tx, err := s.GetConn(ctx).BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	err = tx.QueryRow(ctx, `SELECT id, hashed_password FROM users WHERE login=$1`, login).Scan(&id, &hashedPassword)
+	if err != nil {
+		// if strings.Contains(err.(*pgconn.PgError).Message, "duplicate key value violates unique constraint") {
+		// 	return nil, fmt.Errorf("ошибка регистрации")
+		// }
+		return nil, err
+	}
+	if !CheckPasswordHash(password, hashedPassword) {
+		return nil, pgx.ErrNoRows
+	}
+	claim := &repository.Claim{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   strconv.Itoa(int(id)),
+			Audience:  jwt.ClaimStrings{login},
+			Issuer:    "GetUser",
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 20)),
+		},
+	}
+	err = tx.QueryRow(ctx, `INSERT INTO sessions (user_id, claim) VALUES($1, $2) RETURNING (id)`, id, claim).Scan(&id)
+	if err != nil {
+		return nil, err
+	}
+	_, err = tx.Exec(ctx, `DELETE FROM sessions WHERE to_timestamp(CAST (claim ->> 'exp' AS double precision)) < NOW();`)
+	if err != nil {
+		return nil, err
+	}
+	err = tx.Commit(ctx)
+	if err != nil {
+		return nil, err
+	}
+	claim.ID = fmt.Sprint(id)
+	return claim, nil
 }
 
 func (s *postgresStorage) GetUserBySession(ctx context.Context, claim *repository.Claim) (*repository.Claim, error) {
 	var userID int64
-	s.loger.Info(claim.ID)
-	s.loger.Infof("%+v", claim)
 	searchID, err := strconv.Atoi(claim.ID)
 	if err != nil {
 		return nil, err
 	}
-	s.loger.Info(searchID)
 	err = s.GetConn(ctx).QueryRow(ctx, `SELECT user_id FROM sessions WHERE id = $1`, searchID).Scan(&userID)
 	if err != nil {
 		return nil, err
 	}
-	s.loger.Info(searchID)
-	s.loger.Info(claim.ExpiresAt)
 	if claim.ExpiresAt != nil && claim.ExpiresAt.Before(time.Now()) {
 		_, err = s.GetConn(ctx).Exec(ctx, `DELETE FROM sessions WHERE id = $1`, searchID)
+		if err != nil {
+			return nil, err
+		}
 		return nil, fmt.Errorf("session expired")
 	}
-	s.loger.Info(searchID)
 	return claim, nil
 }
 
-func (s *postgresStorage) CreateOrder(ctx context.Context, id string) error {
+func (s *postgresStorage) CreateOrder(ctx context.Context, id int64) error {
+	s.loger.Info(ctx)
+	if !luhn.Valid(id) {
+		return fmt.Errorf("неправильный номер заказа")
+	}
+	s.loger.Info(ctx)
+	tx, err := s.GetConn(ctx).BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	userID := ctx.Value(internal.ContextKeyUserID{})
+	if userID == nil {
+		return fmt.Errorf("вы не авторизированы")
+	}
+	s.loger.Debug(userID)
+	_, err = tx.Exec(ctx, `INSERT INTO orders (id, user_id, created_at) VALUES($1, $2, $3)`, id, userID, time.Now())
+	if err != nil {
+		s.loger.Debug(err)
+		return err
+	}
+	_, err = tx.Exec(ctx, `INSERT INTO order_statuses (status, order_id, created_at) VALUES($1, $2, $3)`, v1.Order_REGISTERED, id, time.Now())
+	if err != nil {
+		s.loger.Debug(err)
+		return err
+	}
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *postgresStorage) GetOrder(ctx context.Context, id int64) (*v1.Order, error) {
 	panic("not implemented") // TODO: Implement
 }
 
-func (s *postgresStorage) GetOrder(ctx context.Context, id string) (*v1.Order, error) {
-	panic("not implemented") // TODO: Implement
-}
-
-func (s *postgresStorage) GetOrders(ctx context.Context, id string) ([]*v1.Order, error) {
+func (s *postgresStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 	panic("not implemented") // TODO: Implement
 }
 

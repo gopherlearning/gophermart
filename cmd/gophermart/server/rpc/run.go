@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	_ "embed"
 	"net"
+	"strings"
 	"sync"
 
 	"github.com/gopherlearning/gophermart/cmd/gophermart/config"
@@ -21,11 +22,14 @@ func Run(ctx context.Context, wg *sync.WaitGroup, listen string, grpcServer *grp
 	onStop := args.StartStopFunc(ctx, wg)
 	defer onStop()
 	public := NewPublicServer(db, loger)
-	private := NewPrivateServer()
+	private := NewPrivateServer(db, loger)
 	err := v1.RegisterPrivateHandlerFromEndpoint(ctx, mux, config.CLICtl.GRPCServerAddr, []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())})
 	if err != nil {
 		loger.Fatal(err)
 		return
+	}
+	if strings.Contains(listen, "0.0.0.0") {
+		listen = strings.ReplaceAll(listen, "0.0.0.0", "127.0.0.1")
 	}
 	// v1.RegisterPublicHandlerClient(ctx, mux)
 	err = v1.RegisterPublicHandlerFromEndpoint(ctx, mux, config.CLICtl.GRPCServerAddr, []grpc.DialOption{

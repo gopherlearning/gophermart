@@ -3,8 +3,16 @@ package repository
 import "errors"
 
 var (
-	ErrWrongFormat    = errors.New("неверный формат запроса")
-	ErrLoginConflict  = errors.New("логин уже занят")
-	ErrInternalServer = errors.New("внутренняя ошибка сервера")
-	ErrSessionExpired = errors.New("время жизни сессии истекло")
+	ErrWrongFormat          = errors.New("неверный формат запроса")
+	ErrLoginConflict        = errors.New("логин уже занят")
+	ErrInternalServer       = errors.New("внутренняя ошибка сервера")
+	ErrWrongLoginOrPassword = errors.New("неверная пара логин/пароль")
+	ErrSessionExpired       = errors.New("время жизни сессии истекло")
+	ErrNotAuthorized        = errors.New("вы не авторизированы ")
+)
+
+// not errors
+var (
+	ErrSuccessRegistered = errors.New("пользователь успешно зарегистрирован и аутентифицирован")
+	ErrSuccessLogined    = errors.New("пользователь успешно зарегистрирован и аутентифицирован")
 )

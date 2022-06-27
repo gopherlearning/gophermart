@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"sync"
 
 	"github.com/golang-jwt/jwt/v4"
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
@@ -26,6 +27,16 @@ func NewMockStorage() Storage {
 		},
 	}
 }
+func (m *MockStorage) AccrualMonitor(context.Context, *sync.WaitGroup, string) {
+	panic("not implemented") // TODO: Implement
+}
+func (m *MockStorage) AccrualAdd(string) error {
+	panic("not implemented") // TODO: Implement
+}
+func (m *MockStorage) AccrualGet(string) v1.Order_Status {
+	panic("not implemented") // TODO: Implement
+}
+
 func (m *MockStorage) GetUserBySession(_ context.Context, _ *Claim) (*Claim, error) {
 	panic("not implemented") // TODO: Implement
 }
@@ -37,15 +48,15 @@ func (m *MockStorage) StreamCheckToken(srv interface{}, ss grpc.ServerStream, in
 }
 func (m *MockStorage) SigningKey() string { return "123" }
 
-func (m *MockStorage) CreateOrder(ctx context.Context, id string) error {
+func (m *MockStorage) CreateOrder(ctx context.Context, id int64) error {
 	panic("not implemented") // TODO: Implement
 }
 
-func (m *MockStorage) GetOrder(ctx context.Context, id string) (*v1.Order, error) {
+func (m *MockStorage) GetOrder(ctx context.Context, id int64) (*v1.Order, error) {
 	panic("not implemented") // TODO: Implement
 }
 
-func (m *MockStorage) GetOrders(ctx context.Context, id string) ([]*v1.Order, error) {
+func (m *MockStorage) GetOrders(ctx context.Context) ([]*v1.Order, error) {
 	panic("not implemented") // TODO: Implement
 }
 

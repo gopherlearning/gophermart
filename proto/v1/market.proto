@@ -34,7 +34,7 @@ message AuthRequest {
   string password = 2;
 }
 message OrderRequest {
-  string Order = 1;
+  int64 Order = 1;
 }
 
 message OrdersResponse {
@@ -54,7 +54,7 @@ message Order {
     PROCESSING  = 2;
     PROCESSED   = 3;
   }
-  string number     = 1;
+  int64  number     = 1;
   Status status     = 2;
   double accrual    = 3;
   string uploaded_at = 4;

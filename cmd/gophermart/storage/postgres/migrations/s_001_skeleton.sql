@@ -1,8 +1,8 @@
 --- +
 CREATE TABLE users (  
   id BIGSERIAL UNIQUE PRIMARY KEY,
-  login VARCHAR ( 50 ) NOT NULL UNIQUE,
-  hashed_password VARCHAR ( 250 ) NOT NULL
+  login VARCHAR ( 50 ) NOT NULL UNIQUE CHECK(length(login) >= 4),
+  hashed_password VARCHAR ( 250 ) NOT NULL CHECK(length(hashed_password) >= 20)
 );
 --- +
 CREATE TABLE sessions (  
@@ -12,17 +12,17 @@ CREATE TABLE sessions (
 );
 --- +
 CREATE TABLE orders (  
-  id INT UNIQUE PRIMARY KEY,
+  id BIGINT UNIQUE PRIMARY KEY,
   accrual REAL,
   created_at TIMESTAMPTZ NOT NULL,
   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 --- +
 CREATE TABLE order_statuses (  
-  id BIGSERIAL UNIQUE PRIMARY KEY,
   status INT  NOT NULL,
-  order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ NOT NULL
+  order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (order_id, status)
 );
 
 CREATE TABLE withdraws (  

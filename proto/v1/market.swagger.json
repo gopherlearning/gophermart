@@ -319,7 +319,8 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "int64"
             }
           }
         ],
@@ -455,7 +456,8 @@
       },
       "properties": {
         "number": {
-          "type": "string"
+          "type": "string",
+          "format": "int64"
         },
         "status": {
           "$ref": "#/definitions/v1OrderStatus"

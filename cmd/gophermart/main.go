@@ -10,6 +10,8 @@ import (
 	"github.com/gopherlearning/gophermart/internal/args"
 	"github.com/gopherlearning/gophermart/internal/repository"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -39,12 +41,11 @@ func main() {
 
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			// grpc_auth.StreamServerInterceptor(db.CheckToken),
-			// grpc_recovery.StreamServerInterceptor(),
+			grpc_recovery.StreamServerInterceptor(),
 			db.StreamCheckToken,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			// grpc_recovery.UnaryServerInterceptor(),
+			grpc_recovery.UnaryServerInterceptor(),
 			db.UnaryCheckToken,
 		)),
 	)
@@ -72,10 +73,10 @@ func main() {
 			},
 		}),
 	)
-	wg.Add(2)
+	wg.Add(3)
 	go web.Run(addJob("server web"), wg, config.CLICtl.WebServerAddr, grpcServer, mux, db, nil, loger)
 	go rpc.Run(addJob("server grpc"), wg, config.CLICtl.GRPCServerAddr, grpcServer, mux, db, nil, loger)
-
+	go db.AccrualMonitor(addJob("accrual monitor"), wg, config.CLICtl.AccuralSystemAddress)
 	wg.Wait()
 	mainJob()
 }

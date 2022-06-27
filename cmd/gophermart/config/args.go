@@ -10,9 +10,9 @@ type args struct {
 	Verbose              bool   `short:"v" help:"режим разработчика"`
 	GRPCServerAddr       string `short:"g" help:"адрес GRPC сервера" env:"RPC_ADDRESS" default:"127.0.0.1:8091"`
 	SigningKey           string `help:"ключ для подписи JWT токенов" env:"SIGNING_KEY" default:"superSECRETsignKEY"`
-	WebServerAddr        string `short:"a" help:"адрес WEB сервера" env:"RUN_ADDRESS" default:"127.0.0.1:8090"`   // ТЗ
-	DatabaseDSN          string `short:"d" help:"строка подключения к БД" env:"DATABASE_URI"`                     // ТЗ
-	AccuralSystemAddress string `short:"r" help:"адрес системы расчёта начислений:" env:"ACCRUAL_SYSTEM_ADDRESS"` // ТЗ
+	WebServerAddr        string `short:"a" help:"адрес WEB сервера" env:"RUN_ADDRESS" default:"127.0.0.1:8090"`                                   // ТЗ
+	DatabaseDSN          string `short:"d" help:"строка подключения к БД" env:"DATABASE_URI"`                                                     // ТЗ
+	AccuralSystemAddress string `short:"r" help:"адрес системы расчёта начислений:" env:"ACCRUAL_SYSTEM_ADDRESS" default:"http://127.0.0.1:8080"` // ТЗ
 	MockStorage          bool   `short:"m" help:"режим разработчика, использовать локальную базу"`
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gopherlearning/gophermart/internal/repository"
 	v1 "github.com/gopherlearning/gophermart/proto/v1"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -13,18 +14,20 @@ import (
 
 type privateServer struct {
 	v1.UnimplementedPrivateServer
-	// db storage.Storage
-	// subscriber Subscriber
+	db    repository.Storage
+	loger logrus.FieldLogger
 }
 
 // NewPublicServer возвращает сервер, не требующий авторизации
-func NewPrivateServer() v1.PrivateServer {
-	return &privateServer{}
+func NewPrivateServer(db repository.Storage, loger logrus.FieldLogger) v1.PrivateServer {
+	return &privateServer{db: db, loger: loger}
 }
 func (s *privateServer) OrdersAdd(ctx context.Context, req *v1.OrderRequest) (*v1.Empty, error) {
-	// logrus.Info(ctx)
-	return nil, status.Error(codes.Unimplemented, "not implemented")
-	// return nil, status.Error(codes.OK, "server/rpc/clients/All: count out of range")
+	err := s.db.CreateOrder(ctx, req.Order)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.Empty{}, status.Error(codes.OK, "")
 }
 
 func (s *privateServer) OrdersGet(ctx context.Context, req *v1.Empty) (*v1.OrdersResponse, error) {
@@ -37,8 +40,6 @@ func (s *privateServer) OrdersGet(ctx context.Context, req *v1.Empty) (*v1.Order
 	}
 	logrus.Info(md)
 	return nil, status.Error(codes.Unimplemented, "not implemented")
-	// return &v1.OrdersResponse{Orders: []*v1.Order{{Number: "14212312", Status: v1.Order_PROCESSED}}}, nil
-	// status.Error(http.StatusOK, "")
 }
 
 func (s *privateServer) GetBalance(ctx context.Context, _ *v1.Empty) (*v1.Balance, error) {
