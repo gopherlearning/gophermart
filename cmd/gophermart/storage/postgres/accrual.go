@@ -45,7 +45,7 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 	for {
 		select {
 		case <-ticker.C:
-			rows, err := s.GetConn(ctx).Query(ctx, `select array_agg(o.id::text) as ids,s.status from orders AS o JOIN order_statuses AS s ON o.id = s.order_id WHERE s.status = ANY(ARRAY[0,2]) AND NOT (o.id = ANY(select o.id from orders AS o JOIN order_statuses AS s ON o.id = s.order_id WHERE s.status = ANY(ARRAY[1,3]))) GROUP BY s.status`)
+			rows, err := s.GetConn(ctx).Query(ctx, `select array_agg(o.id::text) as ids,s.status from orders AS o JOIN order_statuses AS s ON o.id = s.order_id WHERE s.status = ANY(ARRAY[0,2,4]) AND NOT (o.id = ANY(select o.id from orders AS o JOIN order_statuses AS s ON o.id = s.order_id WHERE s.status = ANY(ARRAY[1,3]))) GROUP BY s.status`)
 			if err != nil {
 				s.loger.Error(err)
 				continue
@@ -69,7 +69,7 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 			wgLocal := &sync.WaitGroup{}
 			for status, orders := range ordersMap {
 				switch status {
-				case v1.Order_REGISTERED:
+				case v1.Order_NEW:
 					for _, order := range orders {
 						wgLocal.Add(1)
 						go func(order string) {
@@ -94,14 +94,14 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 							if resp.StatusCode != http.StatusAccepted {
 								return
 							}
-							_, err = s.GetConn(ctx).Exec(ctx, `INSERT INTO order_statuses (status, order_id, created_at) VALUES($1, $2, $3)`, v1.Order_PROCESSING, order, time.Now())
+							_, err = s.GetConn(ctx).Exec(ctx, `INSERT INTO order_statuses (status, order_id, created_at) VALUES($1, $2, $3)`, v1.Order_REGISTERED, order, time.Now())
 							if err != nil {
 								s.loger.Error(err)
 								return
 							}
 						}(order)
 					}
-				case v1.Order_PROCESSING:
+				case v1.Order_PROCESSING, v1.Order_REGISTERED:
 					for _, order := range orders {
 						wgLocal.Add(1)
 						go func(order string) {

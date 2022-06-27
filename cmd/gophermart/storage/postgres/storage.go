@@ -97,7 +97,7 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 			"/gopher.market.v1.Public/UsersLogin":
 			return "", nil
 		default:
-			return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error())
+			return "", status.Error(codes.Unauthenticated, repository.ErrNotAuthorized.Error())
 		}
 	}
 	var token string
@@ -108,7 +108,7 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 		token = strings.Split(v, "=")[1]
 	}
 	if len(token) == 0 {
-		return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error())
+		return "", status.Error(codes.Unauthenticated, repository.ErrNotAuthorized.Error())
 	}
 	tokenClaim, err := jwt.ParseWithClaims(token, &repository.Claim{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -117,11 +117,11 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 		return []byte(s.secretKey), nil
 	})
 	if err != nil {
-		return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error()+err.Error())
+		return "", status.Error(codes.Unauthenticated, repository.ErrNotAuthorized.Error()+err.Error())
 	}
 	claim, ok := tokenClaim.Claims.(*repository.Claim)
 	if !ok || !tokenClaim.Valid {
-		return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error())
+		return "", status.Error(codes.Unauthenticated, repository.ErrNotAuthorized.Error())
 	}
 	c, err := s.GetUserBySession(ctx, claim)
 	if err != nil {
@@ -129,7 +129,7 @@ func (s *postgresStorage) checkToken(ctx context.Context, method string) (string
 		case pgx.ErrNoRows, repository.ErrSessionExpired:
 			return "", nil
 		default:
-			return "", status.Error(codes.PermissionDenied, repository.ErrNotAuthorized.Error()+err.Error())
+			return "", status.Error(codes.Unauthenticated, repository.ErrNotAuthorized.Error()+err.Error())
 		}
 	}
 	switch method {
@@ -268,7 +268,7 @@ func (s *postgresStorage) CreateOrder(ctx context.Context, id int64) error {
 		s.loger.Debug(err)
 		return err
 	}
-	_, err = tx.Exec(ctx, `INSERT INTO order_statuses (status, order_id, created_at) VALUES($1, $2, $3)`, v1.Order_REGISTERED, id, time.Now())
+	_, err = tx.Exec(ctx, `INSERT INTO order_statuses (status, order_id, created_at) VALUES($1, $2, $3)`, v1.Order_NEW, id, time.Now())
 	if err != nil {
 		s.loger.Debug(err)
 		return err

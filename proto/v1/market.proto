@@ -49,10 +49,11 @@ message Order {
     example: "{\"number\": \"9278923470\",\"status\": \"PROCESSED\",\"accrual\": 500,\"uploaded_at\": \"2020-12-10T15:15:45+03:00\"}"
   };
   enum Status {
-    REGISTERED  = 0;
+    NEW         = 0;
     INVALID     = 1;
     PROCESSING  = 2;
     PROCESSED   = 3;
+    REGISTERED  = 4;
   }
   string  number     = 1;
   Status status     = 2;

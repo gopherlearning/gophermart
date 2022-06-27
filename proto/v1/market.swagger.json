@@ -505,12 +505,13 @@
     "v1OrderStatus": {
       "type": "string",
       "enum": [
-        "REGISTERED",
+        "NEW",
         "INVALID",
         "PROCESSING",
-        "PROCESSED"
+        "PROCESSED",
+        "REGISTERED"
       ],
-      "default": "REGISTERED"
+      "default": "NEW"
     },
     "v1OrdersResponse": {
       "type": "object",
