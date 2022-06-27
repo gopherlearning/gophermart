@@ -100,7 +100,7 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 				// 			}
 				// 		}(order)
 				// 	}
-				case v1.Order_PROCESSING, v1.Order_REGISTERED:
+				case v1.Order_PROCESSING, v1.Order_REGISTERED, v1.Order_NEW:
 					for _, order := range orders {
 						wgLocal.Add(1)
 						go func(order string) {
