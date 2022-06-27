@@ -19,8 +19,8 @@ type accrualOrder struct {
 		Description string  `json:"description"`
 		Price       float64 `json:"price"`
 	} `json:"goods,omitempty"`
-	Status  string `json:"status,omitempty"`
-	Accrual int    `json:"accrual,omitempty"`
+	Status  string  `json:"status,omitempty"`
+	Accrual float64 `json:"accrual,omitempty"`
 }
 
 var goods = []struct {
