@@ -68,6 +68,7 @@ func (s *postgresStorage) AccrualMonitor(ctx context.Context, wg *sync.WaitGroup
 			wgLocal := &sync.WaitGroup{}
 			for status, orders := range ordersMap {
 				switch status {
+				// это для обноыления статуса в accrual
 				// case v1.Order_NEW:
 				// 	for _, order := range orders {
 				// 		wgLocal.Add(1)
